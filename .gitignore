@@ -1,3 +1,4 @@
 cmake/
 *.swp
 *.vim
+test/output/
