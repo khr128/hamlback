@@ -4,15 +4,17 @@
 %option   outfile="haml2erb.scanner.c" header-file="haml2erb.scanner.h"
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include "haml2erb.tab.h"
 %}
 
 NUM           [0-9]
 VAR           [a-zA-Z]
-VARNUM        [0-9a-zA-Z]
+VARNUM        [_0-9a-zA-Z]
 WS            [ ]
 TAB           \t
 PCT           %
+POUND         #
 OPEN_BRACE    \{
 CLOSE_BRACE   \}
 COLON         \:
@@ -20,11 +22,12 @@ ARROW         =>
 
 %%
 {PCT}                         { return PCT; }
+{POUND}                       { return POUND; }
 \n                            { return EOL; }
 {VAR}+{VARNUM}*               { yylval.strval = strdup(yytext); return VAR; }
-{PCT}+{NUM}+{VAR}+{VARNUM}*   { printf ("Invalid tag name match: %s\n", yytext); return INVALID; }
-{NUM}+{VAR}+{VARNUM}*         { printf ("Invalid VAR match: %s\n", yytext); return INVALID; }
-{NUM}+                        { printf ("NUM match: %s\n", yytext); return INVALID; }
-.                             { printf ("default match: %s\n", yytext); return INVALID;} 
+{PCT}+{NUM}+{VAR}+{VARNUM}*   { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
+{NUM}+{VAR}+{VARNUM}*         { fprintf (stderr, "Invalid VAR match: %s\n", yytext); return INVALID; }
+{NUM}+                        { fprintf (stderr, "NUM match: %s\n", yytext); return INVALID; }
+.                             { fprintf (stderr, "default match: %s\n", yytext); return INVALID;} 
 <<EOF>>                       { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
 %%
