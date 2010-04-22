@@ -1,3 +1,7 @@
+/*%option   8bit reentrant bison-bridge*/
+%option   warn nodefault
+%option   yylineno
+%option   outfile="haml2erb.scanner.c" header-file="haml2erb.scanner.h"
 %{
 #include <stdio.h>
 #include "haml2erb.tab.h"
@@ -5,6 +9,7 @@
 
 NUM           [0-9]
 VAR           [a-zA-Z]
+VARNUM        [0-9a-zA-Z]
 WS            [ ]
 TAB           \t
 PCT           %
@@ -14,8 +19,12 @@ COLON         \:
 ARROW         =>
 
 %%
-"%"            { return PCT; }
-\n             { return EOL; }
-{VAR}+         { yylval.strval = strdup(yytext); return VAR; }
-<<EOF>>        printf ( "End of parse.\n" ); yyterminate();
+{PCT}                         { return PCT; }
+\n                            { return EOL; }
+{VAR}+{VARNUM}*               { yylval.strval = strdup(yytext); return VAR; }
+{PCT}+{NUM}+{VAR}+{VARNUM}*   { printf ("Invalid tag name match: %s\n", yytext); return INVALID; }
+{NUM}+{VAR}+{VARNUM}*         { printf ("Invalid VAR match: %s\n", yytext); return INVALID; }
+{NUM}+                        { printf ("NUM match: %s\n", yytext); return INVALID; }
+.                             { printf ("default match: %s\n", yytext); return INVALID;} 
+<<EOF>>                       { printf ( "End of parse.\n" ); yyterminate(); }
 %%
