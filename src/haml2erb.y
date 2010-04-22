@@ -19,7 +19,7 @@
 tag: {/* nothing */}
   | tag tag_element EOL 
     {
-      printf("<!--=====================-->\n");
+      fprintf(stderr, "<!--=====================-->\n");
       if($2)
       {
         printf ("<%s>\n</%s>\n", $2, $2);  
