@@ -1,7 +1,7 @@
 project (ha2er)
 cmake_minimum_required (VERSION 2.8)
 
-set (ha2er_SRCS ${PROJECT_BINARY_DIR}/lex.yy.c)
+set (ha2er_SRCS ${PROJECT_BINARY_DIR}/lex.yy.c ${PROJECT_BINARY_DIR}/haml2erb.tab.c)
 
 add_executable (ha2er ${ha2er_SRCS})
 
@@ -18,8 +18,31 @@ endif (FLEX_LIBRARY)
 #Add custom target to build lexer
 set (LEX flex)
 set (LEX_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/haml2erb.fl)
-add_custom_target(lex ALL
-    ${LEX} ${LEX_SRCS}
+add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/lex.yy.c
+    DEPENDS  ${LEX_SRCS}
+    COMMAND  ${LEX}
+    ARGS     ${LEX_SRCS}
     )
 
+add_custom_target(lex ALL
+    DEPENDS ${PROJECT_BINARY_DIR}/lex.yy.c
+    )
+
+#Add custom target to build grammar
+set (YACC bison)
+set (YACC_OPTS -d)
+set (YACC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/haml2erb.y)
+add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/haml2erb.tab.c
+    DEPENDS  ${YACC_SRCS}
+    COMMAND  ${YACC} ${YACC_OPTS}
+    ARGS     ${YACC_SRCS}
+    )
+
+add_custom_target(yacc ALL
+    DEPENDS ${PROJECT_BINARY_DIR}/haml2erb.tab.c
+    )
+
+add_dependencies(lex yacc)
 add_dependencies(ha2er lex)
