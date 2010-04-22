@@ -1,7 +1,7 @@
 project (ha2er)
 cmake_minimum_required (VERSION 2.8)
 
-set (ha2er_SRCS ${PROJECT_BINARY_DIR}/lex.yy.c ${PROJECT_BINARY_DIR}/haml2erb.tab.c)
+set (ha2er_SRCS ${PROJECT_BINARY_DIR}/haml2erb.scanner.c ${PROJECT_BINARY_DIR}/haml2erb.tab.c)
 
 add_executable (ha2er ${ha2er_SRCS})
 
@@ -19,14 +19,14 @@ endif (FLEX_LIBRARY)
 set (LEX flex)
 set (LEX_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/haml2erb.fl)
 add_custom_command(
-    OUTPUT ${PROJECT_BINARY_DIR}/lex.yy.c
+    OUTPUT ${PROJECT_BINARY_DIR}/haml2erb.scanner.c
     DEPENDS  ${LEX_SRCS}
     COMMAND  ${LEX}
     ARGS     ${LEX_SRCS}
     )
 
 add_custom_target(lex ALL
-    DEPENDS ${PROJECT_BINARY_DIR}/lex.yy.c
+    DEPENDS ${PROJECT_BINARY_DIR}/haml2erb.scanner.c
     )
 
 #Add custom target to build grammar
