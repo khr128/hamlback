@@ -7,29 +7,39 @@
   char *strval;
 }
 
-%token PCT EOL
+%token PCT EOL INVALID
 %token <strval>  VAR
-%start tags
+%token <intval>  NUM
+%start tag
 
+%type <strval> tag_element
 %type <strval> tag
-%type <strval> tags
 %%
 
-tags: /* nothing */{}
-  | tags tag EOL { printf ("<%s>\n</%s>\n", $2, $2);  free($2); }
+tag: {/* nothing */}
+  | tag tag_element EOL 
+    {
+      printf("<!--=====================-->\n");
+      if($2)
+      {
+        printf ("<%s>\n</%s>\n", $2, $2);  
+      }
+    }
   ;
 
-tag:
-  PCT VAR { $$ = $2 }
+tag_element: {/* nothing */}
+  | PCT VAR { $$ = $2; }
+  | tag_element VAR     { yyerror($1); $$ = 0; free($1); }
+  | tag_element INVALID { yyerror("invalid tag_element");  $$ = 0; }
   ;
+
 %%
 yyerror( char *str )
 {
   fprintf(stderr, "error:-( %s\n", str); 
 }
 
-int main()
+main()
 {
   yyparse();
-  return 0;
 }
