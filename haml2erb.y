@@ -11,17 +11,16 @@
 %token <strval>  VAR
 %start tags
 
+%type <strval> tag
+%type <strval> tags
 %%
 
-tags: /* nothing */
-  | tags tag EOL { printf ("=>"); }
+tags: /* nothing */{}
+  | tags tag EOL { printf ("<%s>\n</%s>\n", $2, $2);  free($2); }
   ;
 
 tag:
-  PCT VAR
-  {
-    printf ("Tag %s\n", $2);
-  }
+  PCT VAR { $$ = $2 }
   ;
 %%
 yyerror( char *str )
