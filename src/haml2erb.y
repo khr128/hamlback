@@ -1,5 +1,6 @@
 %{
   #include <stdio.h>
+  #include <stdlib.h>
 %}
 
 %union {
@@ -7,7 +8,7 @@
   char *strval;
 }
 
-%token PCT EOL INVALID
+%token PCT POUND EOL INVALID
 %token <strval>  VAR
 %token <intval>  NUM
 %start tag
@@ -19,16 +20,39 @@
 tag: {/* nothing */}
   | tag tag_element EOL 
     {
-      fprintf(stderr, "<!--=====================-->\n");
       if($2)
       {
-        printf ("<%s>\n</%s>\n", $2, $2);  
+        fprintf(stderr, "<!--==========%s===========-->\n", $2);
+        printf ("%s>\n", $2);  
+        free($2);
       }
     }
   ;
 
 tag_element: {/* nothing */}
-  | PCT VAR { $$ = $2; }
+  | PCT VAR 
+    { 
+      char *text;
+      text = (char *)calloc(strlen($2)+2, 1); 
+      strcpy(text, "<");
+      strcat(text, $2);
+
+      free($$);
+      free($2);
+      $$=text;
+    }
+  | tag_element POUND VAR 
+    { 
+      char *text;
+      text = (char *)calloc(strlen($3)+strlen($$)+7, 1); 
+      strcpy(text, $$); 
+      strcat(text, " id='"); 
+      strcat(text, $3); 
+      strcat(text, "'"); 
+
+      free($$);
+      $$=text;
+    }
   | tag_element VAR     { yyerror($1); $$ = 0; free($1); }
   | tag_element INVALID { yyerror("invalid tag_element");  $$ = 0; }
   ;
