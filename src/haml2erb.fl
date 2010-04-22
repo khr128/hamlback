@@ -26,5 +26,5 @@ ARROW         =>
 {NUM}+{VAR}+{VARNUM}*         { printf ("Invalid VAR match: %s\n", yytext); return INVALID; }
 {NUM}+                        { printf ("NUM match: %s\n", yytext); return INVALID; }
 .                             { printf ("default match: %s\n", yytext); return INVALID;} 
-<<EOF>>                       { printf ( "End of parse.\n" ); yyterminate(); }
+<<EOF>>                       { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
 %%
