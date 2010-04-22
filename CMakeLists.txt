@@ -17,7 +17,7 @@ endif (FLEX_LIBRARY)
 
 #Add custom target to build lexer
 set (LEX flex)
-set (LEX_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/haml2erb.fl)
+set (LEX_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/haml2erb.fl)
 add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/haml2erb.scanner.c
     DEPENDS  ${LEX_SRCS}
@@ -32,7 +32,7 @@ add_custom_target(lex ALL
 #Add custom target to build grammar
 set (YACC bison)
 set (YACC_OPTS -d)
-set (YACC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/haml2erb.y)
+set (YACC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/haml2erb.y)
 add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/haml2erb.tab.c
     DEPENDS  ${YACC_SRCS}
