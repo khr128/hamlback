@@ -1,4 +1,4 @@
 cmake/
 *.swp
 *.vim
-test/output/
+test/erb/
