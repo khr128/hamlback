@@ -1,29 +1,21 @@
 %{
 #include <stdio.h>
+#include "haml2erb.tab.h"
 %}
 
 NUM           [0-9]
 VAR           [a-zA-Z]
 WS            [ ]
 TAB           \t
-POUND         #
 PCT           %
 OPEN_BRACE    \{
 CLOSE_BRACE   \}
 COLON         \:
 ARROW         =>
-DQUOTE        \"
 
 %%
-set            printf( "(STMT set) " );
-{POUND}        printf( "(POUND) " );
-{PCT}          printf( "(PCT) " );
-{OPEN_BRACE}   printf( "(OPEN_BRACE) " );
-{CLOSE_BRACE}  printf( "(CLOSE_BRACE) " );
-{ARROW}        printf( "(ARROW) " );
-{COLON}        printf( "(COLON) " );
-{DQUOTE}       printf( "(DQUOTE) " );
-{VAR}+         printf( "(VAR %s) ", yytext );
-{TAB}+         printf( "TAB " );
+"%"            { return PCT; }
+\n             { return EOL; }
+{VAR}+         { yylval.strval = strdup(yytext); return VAR; }
 <<EOF>>        printf ( "End of parse.\n" ); yyterminate();
 %%
