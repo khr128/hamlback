@@ -9,8 +9,10 @@ char *acc = 0;
 }
 
 %token PCT POUND EOL INVALID
-%token CLOSE_BRACE OPEN_BRACE ARROW SYMBOL STRING
+%token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
+%token <strval>  SYMBOL
+%token <strval>  STRING
 %token <intval>  NUM
 %start tag
 
@@ -57,37 +59,29 @@ tag_element: {/* nothing */}
 name:
   PCT VAR 
   { 
-    char *text;
-    text = (char *)calloc(strlen($2)+2, 1); 
-    strcpy(text, "<");
-    strcat(text, $2);
-
+    $$=concatenate(2, "<", $2);
     free($2);
-    $$=text;
   }
  
 id:
   POUND VAR
   { 
-    char *text;
-    text = (char *)calloc(strlen($2)+7, 1); 
-    strcpy(text, " id='"); 
-    strcat(text, $2); 
-    strcat(text, "'"); 
-
+    $$=concatenate(3, " id='", $2, "'");
     free($2);
-    $$=text;
   }
 
 hash: 
     OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE
     {
-      char *text;
-      const char *msg = " c=\"d\"";
-      text = (char *)calloc(strlen(msg)+1, 1); 
-      strcpy(text, msg);
+      char *symbol = strtrim($2, ':');
+      char *val = strtrim($4, '"');
 
-      $$=text;
+      $$=concatenate(5, " ", symbol, "=\"", val, "\"");
+
+      free(symbol);
+      free(val);
+      free($2);
+      free($4);
     }
 %%
 yyerror( char *str )
