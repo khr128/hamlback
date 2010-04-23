@@ -4,7 +4,6 @@
 %option   outfile="haml2erb.scanner.c" header-file="haml2erb.scanner.h"
 %{
 #include <stdio.h>
-#include <stdlib.h>
 #include "haml2erb.tab.h"
 %}
 
@@ -23,6 +22,8 @@ ARROW         =>
 %%
 {PCT}                         { return PCT; }
 {POUND}                       { return POUND; }
+{OPEN_BRACE}                  { return OPEN_BRACE; }
+{CLOSE_BRACE}                 { return CLOSE_BRACE; }
 \n                            { return EOL; }
 {VAR}+{VARNUM}*               { yylval.strval = strdup(yytext); return VAR; }
 {PCT}+{NUM}+{VAR}+{VARNUM}*   { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
