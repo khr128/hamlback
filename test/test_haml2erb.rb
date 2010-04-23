@@ -25,4 +25,13 @@ class TestHaml2erb < Test::Unit::TestCase
     assert_equal 0, $?.exitstatus, diff
     assert diff.empty?, diff
   end
+
+  def test_simplest_tag_with_id_and_hash
+    `cmake/ha2er < test/haml/simplest_with_id_and_hash.html.haml > #{@output_file_name}`
+
+    expected_file_name = "test/expected/simplest_with_id_and_hash.html.erb"
+    diff = `diff #{@output_file_name} #{expected_file_name}`
+    assert_equal 0, $?.exitstatus, diff
+    assert diff.empty?, diff
+  end
 end
