@@ -1,6 +1,7 @@
 %{
-  #include <stdio.h>
-  #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 %}
 
 %union {
@@ -8,7 +9,7 @@
   char *strval;
 }
 
-%token PCT POUND EOL INVALID
+%token PCT POUND CLOSE_BRACE OPEN_BRACE EOL INVALID
 %token <strval>  VAR
 %token <intval>  NUM
 %start tag
