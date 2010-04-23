@@ -1,7 +1,12 @@
 project (ha2er)
 cmake_minimum_required (VERSION 2.8)
 
-set (ha2er_SRCS ${PROJECT_BINARY_DIR}/haml2erb.scanner.c ${PROJECT_BINARY_DIR}/haml2erb.tab.c)
+set (ha2er_SRCS 
+    ${PROJECT_BINARY_DIR}/haml2erb.scanner.c 
+    ${PROJECT_BINARY_DIR}/haml2erb.tab.c
+    )
+
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
 add_executable (ha2er ${ha2er_SRCS})
 
