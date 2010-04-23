@@ -14,7 +14,7 @@ namespace :test do
     Dir.glob('test/test_*.rb').each do |file| 
       if file =~ Regexp.new(args.file_regex)
         p "Running #{file}..."
-        `ruby #{file} -n /#{args.test_regex}/`
+        puts `ruby #{file} -n /#{args.test_regex}/`
       end
     end
   end
