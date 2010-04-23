@@ -18,11 +18,16 @@ OPEN_BRACE    \{
 CLOSE_BRACE   \}
 COLON         \:
 ARROW         =>
+QUOTE         [\'\"]
+NOT_QUOTE     [^\'\"]
 
 %%
 {PCT}                         { return PCT; }
 {POUND}                       { return POUND; }
 {OPEN_BRACE}                  { return OPEN_BRACE; }
+{COLON}{VARNUM}+              { return SYMBOL; }
+{ARROW}                       { return ARROW; }
+{QUOTE}{NOT_QUOTE}*{QUOTE}    { return STRING; }
 {CLOSE_BRACE}                 { return CLOSE_BRACE; }
 \n                            { return EOL; }
 {VAR}+{VARNUM}*               { yylval.strval = strdup(yytext); return VAR; }
