@@ -59,7 +59,8 @@ tag_element: {/* nothing */}
 name:
   PCT VAR 
   { 
-    push_name(strdup($2));
+    haml_stack.tag_name = strdup($2);
+    haml_push(haml_stack);
     $$=concatenate(2, "<", $2);
     free($2);
   }
@@ -94,12 +95,14 @@ main()
 {
   yyparse();
 
-  char *tag_name = pop_name();
-  while(tag_name)
+  struct HAML_STACK el = haml_pop();
+  while(!haml_cmp(el, haml_null))
   {
-    fprintf(stderr, "<!--==========End: %s===========-->\n", tag_name);
-    printf ("</%s>\n", tag_name);
-    tag_name = pop_name();
+    fprintf(stderr, "<!--==========End: %s===========-->\n", el.tag_name);
+    /** close the erb tag **/
+    printf ("</%s>\n", el.tag_name);
+    haml_clean(el);
+    el = haml_pop();
   }
 }
 
