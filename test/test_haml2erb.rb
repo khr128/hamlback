@@ -34,4 +34,13 @@ class TestHaml2erb < Test::Unit::TestCase
     assert_equal 0, $?.exitstatus, diff
     assert diff.empty?, diff
   end
+
+  def test_one_level_nested_tags
+    `cmake/ha2er < test/haml/one_level_nested_tags.html.haml > #{@output_file_name}`
+
+    expected_file_name = "test/expected/one_level_nested_tags.html.erb"
+    diff = `diff #{@output_file_name} #{expected_file_name}`
+    assert_equal 0, $?.exitstatus, diff
+    assert diff.empty?, diff
+  end
 end
