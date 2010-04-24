@@ -8,7 +8,7 @@ char *acc = 0;
   char *strval;
 }
 
-%token PCT POUND EOL INVALID
+%token PCT POUND EOL SCAN_END INVALID
 %token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
 %token <strval>  SYMBOL
@@ -59,6 +59,7 @@ tag_element: {/* nothing */}
 name:
   PCT VAR 
   { 
+    push_name(strdup($2));
     $$=concatenate(2, "<", $2);
     free($2);
   }
@@ -92,5 +93,13 @@ yyerror( char *str )
 main()
 {
   yyparse();
+
+  char *tag_name = pop_name();
+  while(tag_name)
+  {
+    fprintf(stderr, "<!--==========End: %s===========-->\n", tag_name);
+    printf ("</%s>\n", tag_name);
+    tag_name = pop_name();
+  }
 }
 
