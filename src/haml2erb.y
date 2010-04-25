@@ -13,10 +13,12 @@ char *acc = 0;
 %token <strval>  VAR
 %token <strval>  SYMBOL
 %token <strval>  STRING
+%token <strval>  SPACE_INDENT
 %token <intval>  NUM
 %start tag
 
 %type <strval> tag_element
+%type <strval> indent
 %type <strval> hash
 %type <strval> name
 %type <strval> id
@@ -52,9 +54,21 @@ tag_element: {/* nothing */}
       acc = append(acc, $2);
       free($2);
     }
+  | tag_element indent  
+    {
+      acc = append(acc, $2);
+      free($2);
+    }
   | tag_element VAR     { yyerror($1); $$ = 0; free($1); }
   | tag_element INVALID { yyerror("invalid tag_element");  $$ = 0; }
   ;
+
+indent:
+  SPACE_INDENT PCT VAR
+  {
+    fprintf(stderr, "indent_size: %lu\n", strlen($1)); 
+    $$=concatenate(3, $1, "<", $3);
+  }
 
 name:
   PCT VAR 
@@ -98,7 +112,6 @@ main()
   struct HAML_STACK el = haml_pop();
   while(!haml_cmp(el, haml_null))
   {
-    fprintf(stderr, "<!--==========End: %s===========-->\n", el.tag_name);
     /** close the erb tag **/
     printf ("</%s>\n", el.tag_name);
     haml_clean(el);
