@@ -16,6 +16,7 @@ int haml_set_space_indent(size_t indent)
     return 1;
   }
 
+  if(indent % haml_indent_size != 0) return 0; /* inconsistent indent type */
 
 
   return 1;
