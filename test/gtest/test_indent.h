@@ -4,5 +4,10 @@
 
 class IndentTests : public ::testing::Test
 {
+
+public:
+  virtual void SetUp();
+  virtual void TearDown();
+
 };
 #endif //gtest_indent_H_
