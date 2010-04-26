@@ -31,9 +31,10 @@ int haml_cmp(struct HAML_STACK el1, struct HAML_STACK el2)
   return el1.tag_name == el2.tag_name;
 }
 
-void haml_clean(struct HAML_STACK el)
+void haml_clean(struct HAML_STACK *el)
 {
-  free(el.tag_name);
+  free(el->tag_name);
+  el->tag_name = 0;
 }
 
 #endif /*HAML_STACK_H*/

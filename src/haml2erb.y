@@ -114,7 +114,7 @@ main()
   {
     /** close the erb tag **/
     printf ("</%s>\n", el.tag_name);
-    haml_clean(el);
+    haml_clean(&el);
     el = haml_pop();
   }
 }
