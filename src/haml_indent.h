@@ -6,8 +6,6 @@ int haml_current_indent = -1;
 
 int haml_set_space_indent(size_t indent)
 {
-  if(haml_indent_type != spaces) return 0; /* using wrong indent type */
-
   if(haml_indent_type == undefined)  
   {
     haml_current_indent = indent;
@@ -16,8 +14,11 @@ int haml_set_space_indent(size_t indent)
     return 1;
   }
 
+  if(haml_indent_type != spaces) return 0; /* using wrong indent type */
+
   if(indent % haml_indent_size != 0) return 0; /* inconsistent indent type */
 
+  haml_current_indent = indent;
 
   return 1;
 }
