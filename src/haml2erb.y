@@ -66,14 +66,30 @@ tag_element: {/* nothing */}
 indent:
   SPACE_INDENT PCT VAR
   {
-    fprintf(stderr, "indent_size: %lu\n", strlen($1)); 
+    if(!haml_set_space_indent(strlen($1)))
+    {
+      yyerror("invalid indentation");  $$ = 0;
+      return;
+    }
+    fprintf(stderr, "indent_size: %d\n", haml_current_indent); 
+
+    close_previously_parsed_tags();
+
+    haml_stack.tag_name = strdup($3);
+    haml_stack.indent = strdup($1);
+    haml_push(haml_stack);
     $$=concatenate(3, $1, "<", $3);
   }
 
 name:
   PCT VAR 
   { 
+    haml_current_indent = 0;
+
+    close_previously_parsed_tags();
+
     haml_stack.tag_name = strdup($2);
+    haml_stack.indent = strdup("");
     haml_push(haml_stack);
     $$=concatenate(2, "<", $2);
     free($2);
@@ -112,8 +128,7 @@ main()
   struct HAML_STACK el = haml_pop();
   while(!haml_cmp(el, haml_null))
   {
-    /** close the erb tag **/
-    printf ("</%s>\n", el.tag_name);
+    printf ("%s</%s>\n", el.indent, el.tag_name);  
     haml_clean(&el);
     el = haml_pop();
   }
