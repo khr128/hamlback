@@ -8,18 +8,18 @@ char *acc = 0;
   char *strval;
 }
 
-%token PCT POUND EQUAL EOL SCAN_END INVALID
+%token PCT POUND EQUAL EOL INVALID
 %token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
 %token <strval>  SYMBOL
 %token <strval>  STRING
 %token <strval>  SPACE_INDENT
-%token <intval>  NUM
 %start tag
 
 %type <strval> tag_element
 %type <strval> indent
 %type <strval> name
+%type <strval> div
 %type <strval> name_element
 %type <strval> tag
 %%
@@ -38,11 +38,17 @@ tag: {/* nothing */}
   ;
 
 tag_element: {/* nothing */}
-  | tag_element name 
+ | tag_element name 
     {
       acc = append(acc, $2);
       free($2);
     }
+  | tag_element div 
+    {
+      acc = append(acc, $2);
+      free($2);
+    }
+ 
   | tag_element indent  
     {
       acc = append(acc, $2);
@@ -69,6 +75,7 @@ indent:
     haml_push(haml_stack);
     $$=concatenate(3, $1, "<", $3);
   }
+  ;
 
 name:
    PCT name_element 
@@ -76,6 +83,22 @@ name:
       acc = append(acc, $2);
       free($2);
     }
+
+  | PCT VAR EOL
+    { 
+    fprintf(stderr, "name: %s\n", $2); 
+      haml_current_indent = 0;
+
+      close_previously_parsed_tags();
+
+      haml_stack.tag_name = strdup($2);
+      haml_stack.indent = strdup("");
+      haml_push(haml_stack);
+
+      $$=concatenate(2, "<", $2);
+      free($2);
+    }
+    ;
 
 name_element:
   VAR POUND VAR OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE
@@ -110,21 +133,25 @@ name_element:
       $$=concatenate(5, "<", $1, " id='", $3, "'");
       haml_free(2, $1, $3);
     }
+    ;
 
-  | VAR 
-    { 
-    fprintf(stderr, "name: %s\n", $1); 
+div: 
+  POUND VAR
+  {
+    fprintf(stderr, "name: div, id: %s\n", $2); 
       haml_current_indent = 0;
 
       close_previously_parsed_tags();
 
-      haml_stack.tag_name = strdup($1);
+      haml_stack.tag_name = strdup("div");
       haml_stack.indent = strdup("");
       haml_push(haml_stack);
 
-      $$=concatenate(2, "<", $1);
-      free($1);
-    }
+      $$=concatenate(3, "<div id='", $2, "'");
+      free($2);
+  }
+  ;
+
 %%
 yyerror( char *str )
 {
