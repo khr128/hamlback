@@ -46,4 +46,13 @@ class TestHaml2erb < Test::Unit::TestCase
     assert_equal 0, $?.exitstatus, diff
     assert diff.empty?, diff
   end
+
+  def test_two_level_nested_tags
+    `#{@ha2er_exe} < #{File.join(@cur_dir, "haml/two_level_nested_tags.html.haml")} > #{@output_file_name}`
+
+    expected_file_name = File.join(@cur_dir, "expected/two_level_nested_tags.html.erb")
+    diff = `diff #{@output_file_name} #{expected_file_name}`
+    assert_equal 0, $?.exitstatus, diff
+    assert diff.empty?, diff
+  end
 end
