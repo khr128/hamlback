@@ -71,3 +71,24 @@ TEST_F(StackTests, PushPushPopPopTest)
   ASSERT_EQ(1, haml_cmp(haml_null, haml_pop()));
   ASSERT_EQ(-1, haml_sp);
 }
+
+
+TEST_F(StackTests, PushPeekTest) 
+{
+  ASSERT_EQ(-1, haml_sp);
+  ASSERT_EQ(1, haml_cmp(haml_null, haml_pop()));
+  ASSERT_EQ(-1, haml_sp);
+
+  haml_push(haml_stack);
+  ASSERT_EQ(0, haml_sp);
+
+  ASSERT_EQ(1, haml_cmp(haml_stack, haml_peek()));
+  ASSERT_EQ(0, haml_sp);
+
+  ASSERT_EQ(1, haml_cmp(haml_stack, haml_pop()));
+  ASSERT_EQ(-1, haml_sp);
+  haml_clean(&haml_stack);
+
+  ASSERT_EQ(1, haml_cmp(haml_null, haml_pop()));
+  ASSERT_EQ(-1, haml_sp);
+}
