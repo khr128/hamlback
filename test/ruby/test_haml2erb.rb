@@ -11,7 +11,6 @@ class TestHaml2erb < Test::Unit::TestCase
   end
 
   def test_simplest_tag
-    p `pwd`
    `#{@ha2er_exe} < #{File.join(@cur_dir, "haml/simplest.html.haml")} > #{@output_file_name}`
 
     expected_file_name = File.join(@cur_dir, "expected/simplest.html.erb")
@@ -51,6 +50,15 @@ class TestHaml2erb < Test::Unit::TestCase
     `#{@ha2er_exe} < #{File.join(@cur_dir, "haml/two_level_nested_tags.html.haml")} > #{@output_file_name}`
 
     expected_file_name = File.join(@cur_dir, "expected/two_level_nested_tags.html.erb")
+    diff = `diff #{@output_file_name} #{expected_file_name}`
+    assert_equal 0, $?.exitstatus, diff
+    assert diff.empty?, diff
+  end
+
+  def test_simplest_div
+   `#{@ha2er_exe} < #{File.join(@cur_dir, "haml/simplest_div.html.haml")} > #{@output_file_name}`
+
+    expected_file_name = File.join(@cur_dir, "expected/simplest_div.html.erb")
     diff = `diff #{@output_file_name} #{expected_file_name}`
     assert_equal 0, $?.exitstatus, diff
     assert diff.empty?, diff
