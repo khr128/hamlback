@@ -19,4 +19,17 @@ void close_previously_parsed_tags()
     haml_stack = haml_peek();
   }
 }
+
+void haml_free(int n, ...)
+{
+  va_list ptrs;
+  va_start(ptrs, n);
+
+  int i = 0;
+  for (; i<n; ++i)
+    free(va_arg(ptrs, void *));
+
+  va_end(ptrs);
+}
+
 #endif /*HAML_HELPERS_H_*/
