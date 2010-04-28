@@ -36,7 +36,7 @@ add_custom_target(lex ALL
 
 #Add custom target to build grammar
 set (YACC bison)
-set (YACC_OPTS -d)
+set (YACC_OPTS -d -v)
 set (YACC_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/haml2erb.y)
 add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/haml2erb.tab.c
