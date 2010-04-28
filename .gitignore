@@ -1,5 +1,5 @@
 cmake/
 *.swp
 *.vim
-test/erb/
+test/ruby/erb/
 tags
