@@ -8,7 +8,7 @@ char *acc = 0;
   char *strval;
 }
 
-%token PCT POUND EOL SCAN_END INVALID
+%token PCT POUND EQUAL EOL SCAN_END INVALID
 %token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
 %token <strval>  SYMBOL
@@ -19,9 +19,8 @@ char *acc = 0;
 
 %type <strval> tag_element
 %type <strval> indent
-%type <strval> hash
 %type <strval> name
-%type <strval> id
+%type <strval> name_element
 %type <strval> tag
 %%
 
@@ -40,16 +39,6 @@ tag: {/* nothing */}
 
 tag_element: {/* nothing */}
   | tag_element name 
-    {
-      acc = append(acc, $2);
-      free($2);
-    }
-  | tag_element id 
-    {
-      acc = append(acc, $2);
-      free($2);
-    }
-  | tag_element hash 
     {
       acc = append(acc, $2);
       free($2);
@@ -82,38 +71,59 @@ indent:
   }
 
 name:
-  PCT VAR 
-  { 
-    haml_current_indent = 0;
-
-    close_previously_parsed_tags();
-
-    haml_stack.tag_name = strdup($2);
-    haml_stack.indent = strdup("");
-    haml_push(haml_stack);
-    $$=concatenate(2, "<", $2);
-    free($2);
-  }
- 
-id:
-  POUND VAR
-  { 
-    $$=concatenate(3, " id='", $2, "'");
-    free($2);
-  }
-
-hash: 
-    OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE
+   PCT name_element 
     {
-      char *symbol = strtrim($2, ':');
-      char *val = strtrim($4, '"');
-
-      $$=concatenate(5, " ", symbol, "=\"", val, "\"");
-
-      free(symbol);
-      free(val);
+      acc = append(acc, $2);
       free($2);
-      free($4);
+    }
+
+name_element:
+  VAR POUND VAR OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE
+    {
+      char *symbol = strtrim($5, ':');
+      char *val = strtrim($7, '"');
+
+    fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); 
+      haml_current_indent = 0;
+
+      close_previously_parsed_tags();
+
+      haml_stack.tag_name = strdup($1);
+      haml_stack.indent = strdup("");
+      haml_push(haml_stack);
+
+      $$=concatenate(10, "<", $1, " id='", $3, "'", " ", symbol, "=\"", val, "\"");
+
+      haml_free(6, $1, $3, symbol, val, $5, $7);
+    }
+  | VAR POUND VAR
+    {
+    fprintf(stderr, "name: %s, id: %s\n", $1, $3); 
+      haml_current_indent = 0;
+
+      close_previously_parsed_tags();
+
+      haml_stack.tag_name = strdup($1);
+      haml_stack.indent = strdup("");
+      haml_push(haml_stack);
+
+      $$=concatenate(5, "<", $1, " id='", $3, "'");
+      haml_free(2, $1, $3);
+    }
+
+  | VAR 
+    { 
+    fprintf(stderr, "name: %s\n", $1); 
+      haml_current_indent = 0;
+
+      close_previously_parsed_tags();
+
+      haml_stack.tag_name = strdup($1);
+      haml_stack.indent = strdup("");
+      haml_push(haml_stack);
+
+      $$=concatenate(2, "<", $1);
+      free($1);
     }
 %%
 yyerror( char *str )
