@@ -10,6 +10,7 @@
 NUM           [0-9]
 VAR           [a-zA-Z]
 VARNUM        [_0-9a-zA-Z]
+CONTENT       [ _0-9a-zA-Z]
 WS            [ ]
 TAB           \t
 PCT           %
@@ -33,9 +34,14 @@ NOT_QUOTE     [^\'\"]
 {CLOSE_BRACE}                 { return CLOSE_BRACE; }
 \n                            { return EOL; }
 {VAR}+{VARNUM}*               { yylval.strval = strdup(yytext); return VAR; }
+{WS}+{CONTENT}+               { yylval.strval = strdup(yytext); return CONTENT; }
 {PCT}+{NUM}+{VAR}+{VARNUM}*   { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
-{NUM}+{VAR}+{VARNUM}*         { fprintf (stderr, "Invalid VAR match: %s\n", yytext); return INVALID; }
-{NUM}+                        { fprintf (stderr, "NUM match: %s\n", yytext); return INVALID; }
 .                             { fprintf (stderr, "default match: %s\n", yytext); return INVALID;} 
 <<EOF>>                       { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
 %%
+
+yyerror( char *str )
+{
+  fprintf(stderr, "error:-( %s at line %d about '%s'\n", str, yylineno, yytext); 
+}
+
