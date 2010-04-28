@@ -13,6 +13,7 @@ char *acc = 0;
 %token <strval>  VAR
 %token <strval>  SYMBOL
 %token <strval>  STRING
+%token <strval>  CONTENT
 %token <strval>  SPACE_INDENT
 %start tag
 
@@ -20,6 +21,7 @@ char *acc = 0;
 %type <strval> indent
 %type <strval> name
 %type <strval> div
+%type <strval> content
 %type <strval> name_element
 %type <strval> tag
 %%
@@ -29,21 +31,20 @@ tag: {/* nothing */}
     {
       if(acc)
       {
-        fprintf(stderr, "<!--==========%s===========-->\n", acc);
+        /*fprintf(stderr, "<!--==========%s===========-->\n", acc);*/
         printf ("%s>\n", acc);  
         free(acc);
         acc = 0;
       }
     }
+  | div EOL 
+    {
+        printf ("%s\n", $1);  
+    }
   ;
 
 tag_element: {/* nothing */}
  | tag_element name 
-    {
-      acc = append(acc, $2);
-      free($2);
-    }
-  | tag_element div 
     {
       acc = append(acc, $2);
       free($2);
@@ -66,7 +67,7 @@ indent:
       yyerror("invalid indentation");  $$ = 0;
       return;
     }
-    fprintf(stderr, "indent_size: %d\n", haml_current_indent); 
+    /*fprintf(stderr, "indent_size: %d\n", haml_current_indent); */
 
     close_previously_parsed_tags();
 
@@ -86,7 +87,7 @@ name:
 
   | PCT VAR EOL
     { 
-    fprintf(stderr, "name: %s\n", $2); 
+    /*fprintf(stderr, "name: %s\n", $2); */
       haml_current_indent = 0;
 
       close_previously_parsed_tags();
@@ -106,7 +107,7 @@ name_element:
       char *symbol = strtrim($5, ':');
       char *val = strtrim($7, '"');
 
-    fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); 
+    /*fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); */
       haml_current_indent = 0;
 
       close_previously_parsed_tags();
@@ -121,7 +122,7 @@ name_element:
     }
   | VAR POUND VAR
     {
-    fprintf(stderr, "name: %s, id: %s\n", $1, $3); 
+    /*fprintf(stderr, "name: %s, id: %s\n", $1, $3); */
       haml_current_indent = 0;
 
       close_previously_parsed_tags();
@@ -136,9 +137,9 @@ name_element:
     ;
 
 div: 
-  POUND VAR
+  POUND VAR content
   {
-    fprintf(stderr, "name: div, id: %s\n", $2); 
+    /*fprintf(stderr, "name: div, id: %s\n", $2);*/
       haml_current_indent = 0;
 
       close_previously_parsed_tags();
@@ -147,21 +148,24 @@ div:
       haml_stack.indent = strdup("");
       haml_push(haml_stack);
 
-      $$=concatenate(3, "<div id='", $2, "'");
-      free($2);
+      $$=concatenate(4, "<div id='", $2, "'>", $3);
+      haml_free(2, $2, $3);
   }
   ;
 
+content: {}
+  | content CONTENT 
+    {
+    /*fprintf(stderr, "content: %s\n", $2);*/
+      $$ = $2;
+    }
+    ;
 %%
-yyerror( char *str )
-{
-  fprintf(stderr, "error:-( %s\n", str); 
-}
-
 main()
 {
   yyparse();
 
+  /*close tags which are still open*/
   struct HAML_STACK el = haml_pop();
   while(!haml_cmp(el, haml_null))
   {
