@@ -2,3 +2,4 @@ cmake/
 *.swp
 *.vim
 test/erb/
+tags
