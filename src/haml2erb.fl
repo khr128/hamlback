@@ -18,6 +18,7 @@ OPEN_BRACE    \{
 CLOSE_BRACE   \}
 COLON         \:
 ARROW         =>
+EQUAL         =
 QUOTE         [\'\"]
 NOT_QUOTE     [^\'\"]
 
