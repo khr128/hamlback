@@ -40,7 +40,7 @@ tag: {/* nothing */}
     {
         printf ("%s\n", $1);  
     }
-  ;
+    ;
 
 tag_element: {/* nothing */}
  | tag_element name 
@@ -60,22 +60,14 @@ tag_element: {/* nothing */}
 
 indent:
   SPACE_INDENT PCT VAR
-  {
-    if(!haml_set_space_indent(strlen($1)))
     {
-      yyerror("invalid indentation");  $$ = 0;
-      return;
+      $$=make_tag_name($1, $3);
+      if(!$$)
+        yyerror("invalid indentation");
+
+      /*fprintf(stderr, "indent_size: %d\n", haml_current_indent);*/
     }
-    /*fprintf(stderr, "indent_size: %d\n", haml_current_indent); */
-
-    close_previously_parsed_tags();
-
-    haml_stack.tag_name = strdup($3);
-    haml_stack.indent = strdup($1);
-    haml_push(haml_stack);
-    $$=concatenate(3, $1, "<", $3);
-  }
-  ;
+    ;
 
 name:
    PCT name_element 
@@ -86,17 +78,7 @@ name:
 
   | PCT VAR EOL
     { 
-    /*fprintf(stderr, "name: %s\n", $2); */
-      haml_current_indent = 0;
-
-      close_previously_parsed_tags();
-
-      haml_stack.tag_name = strdup($2);
-      haml_stack.indent = strdup("");
-      haml_push(haml_stack);
-
-      $$=concatenate(2, "<", $2);
-      free($2);
+      $$=make_tag_name(strdup(""), $2);
     }
     ;
 
@@ -109,12 +91,7 @@ name_element:
     /*fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); */
       haml_current_indent = 0;
 
-      close_previously_parsed_tags();
-
-      haml_stack.tag_name = strdup($1);
-      haml_stack.indent = strdup("");
-      haml_push(haml_stack);
-
+      push_tag_name(strdup($1), strdup(""));
       $$=concatenate(10, "<", $1, " id='", $3, "'", " ", symbol, "=\"", val, "\"");
 
       haml_free(6, $1, $3, symbol, val, $5, $7);
@@ -124,13 +101,9 @@ name_element:
     /*fprintf(stderr, "name: %s, id: %s\n", $1, $3); */
       haml_current_indent = 0;
 
-      close_previously_parsed_tags();
-
-      haml_stack.tag_name = strdup($1);
-      haml_stack.indent = strdup("");
-      haml_push(haml_stack);
-
+      push_tag_name(strdup($1), strdup(""));
       $$=concatenate(5, "<", $1, " id='", $3, "'");
+
       haml_free(2, $1, $3);
     }
     ;
@@ -141,26 +114,16 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
       haml_current_indent = 0;
 
-      close_previously_parsed_tags();
-
-      haml_stack.tag_name = strdup("div");
-      haml_stack.indent = strdup("");
-      haml_push(haml_stack);
-
+      push_tag_name(strdup("div"), strdup(""));
       $$=concatenate(3, "<div id='", $2, "'>");
       haml_free(1, $2);
   }
   | POUND VAR CONTENT EOL
   {
-    fprintf(stderr, "name: div, id: %s\n", $3);
+    /*fprintf(stderr, "name: div, id: %s\n", $3);*/
       haml_current_indent = 0;
 
-      close_previously_parsed_tags();
-
-      haml_stack.tag_name = strdup("div");
-      haml_stack.indent = strdup("");
-      haml_push(haml_stack);
-
+      push_tag_name(strdup("div"), strdup(""));
       $$=concatenate(4, "<div id='", $2, "'>", $3);
       haml_free(2, $2, $3);
   }
@@ -170,12 +133,7 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
       haml_current_indent = 0;
 
-      close_previously_parsed_tags();
-
-      haml_stack.tag_name = strdup("div");
-      haml_stack.indent = strdup("");
-      haml_push(haml_stack);
-
+      push_tag_name(strdup("div"), strdup(""));
       char *ruby_code = strtrim($4, ' ');
       $$=concatenate(5, "<div id='", $2, "'> <%= ", ruby_code, " %>");
       haml_free(2, $2, $4, ruby_code);
