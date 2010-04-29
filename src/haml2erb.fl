@@ -10,9 +10,11 @@
 NUM           [0-9]
 VAR           [a-zA-Z]
 VARNUM        [_0-9a-zA-Z]
-CONTENT       [ _0-9a-zA-Z]
-WS            [ ]
+CONTENT       [ _0-9a-zA-Z.]
+SPACE         [ ]
 TAB           \t
+WS            [ \t]
+NOT_WS        [^ \t]
 PCT           %
 POUND         #
 OPEN_BRACE    \{
@@ -24,7 +26,8 @@ QUOTE         [\'\"]
 NOT_QUOTE     [^\'\"]
 
 %%
-^{WS}+                        { yylval.strval = strdup(yytext); return SPACE_INDENT; }
+^{SPACE}+                     { yylval.strval = strdup(yytext); return SPACE_INDENT; }
+{EQUAL}                       { yylval.strval = strdup(yytext); return EQUAL; }
 {PCT}                         { return PCT; }
 {POUND}                       { return POUND; }
 {OPEN_BRACE}                  { return OPEN_BRACE; }
