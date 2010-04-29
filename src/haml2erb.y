@@ -8,7 +8,7 @@ char *acc = 0;
   char *strval;
 }
 
-%token PCT POUND EQUAL EOL INVALID
+%token PCT POUND EQUAL SPACE EOL INVALID
 %token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
 %token <strval>  SYMBOL
@@ -21,7 +21,6 @@ char *acc = 0;
 %type <strval> indent
 %type <strval> name
 %type <strval> div
-%type <strval> content
 %type <strval> name_element
 %type <strval> tag
 %%
@@ -37,7 +36,7 @@ tag: {/* nothing */}
         acc = 0;
       }
     }
-  | div EOL 
+  | div
     {
         printf ("%s\n", $1);  
     }
@@ -137,9 +136,23 @@ name_element:
     ;
 
 div: 
-  POUND VAR content
+  POUND VAR EOL
   {
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
+      haml_current_indent = 0;
+
+      close_previously_parsed_tags();
+
+      haml_stack.tag_name = strdup("div");
+      haml_stack.indent = strdup("");
+      haml_push(haml_stack);
+
+      $$=concatenate(3, "<div id='", $2, "'>");
+      haml_free(1, $2);
+  }
+  | POUND VAR CONTENT EOL
+  {
+    fprintf(stderr, "name: div, id: %s\n", $3);
       haml_current_indent = 0;
 
       close_previously_parsed_tags();
@@ -151,15 +164,24 @@ div:
       $$=concatenate(4, "<div id='", $2, "'>", $3);
       haml_free(2, $2, $3);
   }
+
+  | POUND VAR EQUAL CONTENT EOL
+  {
+    /*fprintf(stderr, "name: div, id: %s\n", $2);*/
+      haml_current_indent = 0;
+
+      close_previously_parsed_tags();
+
+      haml_stack.tag_name = strdup("div");
+      haml_stack.indent = strdup("");
+      haml_push(haml_stack);
+
+      char *ruby_code = strtrim($4, ' ');
+      $$=concatenate(5, "<div id='", $2, "'> <%= ", ruby_code, " %>");
+      haml_free(2, $2, $4, ruby_code);
+  }
   ;
 
-content: {}
-  | content CONTENT 
-    {
-    /*fprintf(stderr, "content: %s\n", $2);*/
-      $$ = $2;
-    }
-    ;
 %%
 main()
 {
