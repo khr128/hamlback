@@ -39,6 +39,7 @@ tag: {/* nothing */}
   | div
     {
         printf ("%s\n", $1);  
+        free($1);
     }
     ;
 
@@ -91,7 +92,7 @@ name_element:
     /*fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); */
       haml_current_indent = 0;
 
-      push_tag_name(strdup($1), strdup(""));
+      push_tag_name($1, "");
       $$=concatenate(10, "<", $1, " id='", $3, "'", " ", symbol, "=\"", val, "\"");
 
       haml_free(6, $1, $3, symbol, val, $5, $7);
@@ -101,7 +102,7 @@ name_element:
     /*fprintf(stderr, "name: %s, id: %s\n", $1, $3); */
       haml_current_indent = 0;
 
-      push_tag_name(strdup($1), strdup(""));
+      push_tag_name($1, "");
       $$=concatenate(5, "<", $1, " id='", $3, "'");
 
       haml_free(2, $1, $3);
@@ -114,7 +115,7 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
       haml_current_indent = 0;
 
-      push_tag_name(strdup("div"), strdup(""));
+      push_tag_name("div", "");
       $$=concatenate(3, "<div id='", $2, "'>");
       haml_free(1, $2);
   }
@@ -123,7 +124,7 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $3);*/
       haml_current_indent = 0;
 
-      push_tag_name(strdup("div"), strdup(""));
+      push_tag_name("div", "");
       $$=concatenate(4, "<div id='", $2, "'>", $3);
       haml_free(2, $2, $3);
   }
@@ -133,10 +134,10 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
       haml_current_indent = 0;
 
-      push_tag_name(strdup("div"), strdup(""));
+      push_tag_name("div", "");
       char *ruby_code = strtrim($4, ' ');
       $$=concatenate(5, "<div id='", $2, "'> <%= ", ruby_code, " %>");
-      haml_free(2, $2, $4, ruby_code);
+      haml_free(3, $2, $4, ruby_code);
   }
   ;
 
