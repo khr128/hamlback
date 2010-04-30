@@ -11,4 +11,5 @@ add_executable (haml_c_tests ${haml_c_tests_SRCS} )
 target_link_libraries( haml_c_tests
     ${GTEST_LIB}
     pthread
+    hamlparser
     )
