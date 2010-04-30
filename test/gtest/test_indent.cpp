@@ -24,7 +24,7 @@ TEST_F(IndentTests, SetFirstIndentTest)
   ASSERT_EQ(-1, haml_current_indent);
   ASSERT_EQ(undefined, haml_indent_type);
 
-  int numspaces = 7;
+  size_t numspaces = 7;
   int ret = haml_set_space_indent(numspaces);
 
   ASSERT_NE(0, ret);
@@ -40,7 +40,7 @@ TEST_F(IndentTests, SetSecondIndentTest)
   ASSERT_EQ(-1, haml_current_indent);
   ASSERT_EQ(undefined, haml_indent_type);
 
-  int numspaces = 7;
+  size_t numspaces = 7;
   int ret = haml_set_space_indent(numspaces);
 
   ASSERT_NE(0, ret);
