@@ -16,6 +16,7 @@ void close_previously_parsed_tags()
   {
     haml_stack = haml_pop();
     printf ("%s</%s>\n", haml_stack.indent, haml_stack.tag_name);  
+    haml_clean(&haml_stack);
     haml_stack = haml_peek();
   }
 }
@@ -53,7 +54,7 @@ char *make_tag_name(char* indent, char *name)
       return 0;
   }
 
-  push_tag_name(strdup(name), strdup(indent));
+  push_tag_name(name, indent);
 
   char *tag_name = concatenate(3, indent, "<", name);
   haml_free(2, indent, name);
