@@ -6,3 +6,48 @@ add_subdirectory( gtest )
 add_test(run.RubyTests ruby  ${CMAKE_CURRENT_SOURCE_DIR}/ruby/test_haml2erb.rb )
 add_test(run.haml_c_tests ${PROJECT_BINARY_DIR}/gtest/haml_c_tests )
 
+add_test(run.valgrind1 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/simplest.html.haml)
+
+add_test(run.valgrind2 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/simplest_with_id.html.haml)
+
+add_test(run.valgrind3 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/simplest_with_id_and_hash.html.haml)
+
+add_test(run.valgrind4 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/one_level_nested_tags.html.haml)
+
+add_test(run.valgrind5 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/two_level_nested_tags.html.haml)
+
+add_test(run.valgrind6 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/simplest_div.html.haml)
+
+add_test(run.valgrind7 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/simplest_div_with_static_content.html.haml)
+
+add_test(run.valgrind8 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/simplest_div_with_ruby_content.html.haml)
+
+set (failRegex "definitely lost: [^0]")
+set_tests_properties(
+    run.valgrind1 
+    run.valgrind2 
+    run.valgrind3
+    run.valgrind4
+    run.valgrind5
+    run.valgrind6
+    run.valgrind7
+    run.valgrind8
+    PROPERTIES
+    FAIL_REGULAR_EXPRESSION "${failRegex}"
+    )
