@@ -1,24 +1,11 @@
 project (ha2er)
 cmake_minimum_required (VERSION 2.8)
 
-set (ha2er_SRCS 
-    ${PROJECT_BINARY_DIR}/haml2erb.scanner.c 
-    ${PROJECT_BINARY_DIR}/haml2erb.tab.c
+set (hamlparser_SRCS
+      ${CMAKE_CURRENT_SOURCE_DIR}/haml_stack.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/haml_indent.c
     )
-
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
-
-add_executable (ha2er ${ha2er_SRCS})
-
-#Add flex library
-find_library (FLEX_LIBRARY 
-    NAMES fl
-    PATHS /usr/lib /usr/local/lib
-    )
-
-if (FLEX_LIBRARY)
-  target_link_libraries (ha2er ${FLEX_LIBRARY})
-endif (FLEX_LIBRARY)
+add_library (hamlparser STATIC ${hamlparser_SRCS})
 
 #Add custom target to build lexer
 set (LEX flex)
@@ -49,5 +36,24 @@ add_custom_target(yacc ALL
     DEPENDS ${PROJECT_BINARY_DIR}/haml2erb.tab.c
     )
 
+set (ha2er_SRCS 
+    ${PROJECT_BINARY_DIR}/haml2erb.scanner.c 
+    ${PROJECT_BINARY_DIR}/haml2erb.tab.c
+    )
+
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+
+add_executable (ha2er ${ha2er_SRCS})
+target_link_libraries (ha2er hamlparser)
+#Add flex library
+find_library (FLEX_LIBRARY 
+    NAMES fl
+    PATHS /usr/lib /usr/local/lib
+    )
+
+if (FLEX_LIBRARY)
+  target_link_libraries (ha2er ${FLEX_LIBRARY})
+endif (FLEX_LIBRARY)
+
 add_dependencies(lex yacc)
-add_dependencies(ha2er lex)
+add_dependencies(ha2er hamlparser lex)
