@@ -1,5 +1,10 @@
 #ifndef HAML_STRING_H_
 #define HAML_STRING_H_
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 #include <string.h>
 #include <stdarg.h>
 
@@ -47,5 +52,9 @@ char *strtrim(char *str, char c)
 
   return trimmed;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*HAML_STRING_H_*/
