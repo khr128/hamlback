@@ -1,51 +1,31 @@
 #ifndef HAML_STACK_H
 #define HAML_STACK_H
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 #define TAG_NAME_STACK_SIZE 1024
 #define HAML_STACK_SIZE 1024
-int haml_sp = -1; /* empty stack */
+extern int haml_sp; /* stack pointer */
 
 struct HAML_STACK {
   char *tag_name;
   char *indent;
 };
 
-struct HAML_STACK haml_null = { 0, 0 };
-struct HAML_STACK haml_stack = { 0, 0 };
+extern struct HAML_STACK haml_null;
+extern struct HAML_STACK haml_stack;
 
-struct HAML_STACK stack[HAML_STACK_SIZE];
+extern struct HAML_STACK stack[HAML_STACK_SIZE];
 
-struct HAML_STACK haml_peek()
-{
-  if(haml_sp < 0) return haml_null;
-  return stack[haml_sp];
+extern struct HAML_STACK haml_peek();
+extern struct HAML_STACK haml_pop();
+extern void haml_push(struct HAML_STACK stack_element);
+extern int haml_cmp(struct HAML_STACK el1, struct HAML_STACK el2);
+extern void haml_clean(struct HAML_STACK *el);
+
+#ifdef __cplusplus
 }
-
-struct HAML_STACK haml_pop()
-{
-  if(haml_sp < 0) return haml_null;
-  return stack[haml_sp--];
-}
-
-void haml_push(struct HAML_STACK stack_element)
-{
-  if(haml_sp == HAML_STACK_SIZE) return;
-  stack[++haml_sp] = stack_element;
-}
-
-int haml_cmp(struct HAML_STACK el1, struct HAML_STACK el2)
-{
-  return el1.tag_name == el2.tag_name &&
-    el1.indent == el2.indent;
-}
-
-void haml_clean(struct HAML_STACK *el)
-{
-  free(el->tag_name);
-  free(el->indent);
-
-  el->tag_name = 0;
-  el->indent = 0;
-}
-
+#endif
 #endif /*HAML_STACK_H*/
