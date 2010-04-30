@@ -1,6 +1,10 @@
 #ifndef HAML_HELPERS_H_
 #define HAML_HELPERS_H_
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+    
 #include <stdio.h>
 #include <stdlib.h>
 #include "haml_string.h"
@@ -62,4 +66,7 @@ char *make_tag_name(char* indent, char *name)
   return tag_name;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /*HAML_HELPERS_H_*/
