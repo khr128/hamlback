@@ -27,7 +27,7 @@ NOT_QUOTE     [^\'\"]
 
 %%
 ^{SPACE}+                     { yylval.strval = strdup(yytext); return SPACE_INDENT; }
-{EQUAL}                       { yylval.strval = strdup(yytext); return EQUAL; }
+{EQUAL}                       { return EQUAL; }
 {PCT}                         { return PCT; }
 {POUND}                       { return POUND; }
 {OPEN_BRACE}                  { return OPEN_BRACE; }
