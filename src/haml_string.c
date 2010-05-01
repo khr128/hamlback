@@ -36,13 +36,13 @@ char *strtrim(char *str, char c)
   size_t n = strlen(str);
   char *trimmed = strdup(str);
 
-  if(n < 1) return trimmed;
+  if(n < 1) return trimmed; /* return a copy of empty string */
     
-  if(*str == c) memcpy(trimmed, trimmed+1, n);
+  if(*str == c) memcpy(trimmed, trimmed+1, n); /* trim from the left */
 
-  if(n < 2) return trimmed;
+  if(n < 2) return trimmed; /* if initial string had just one charcter */
 
-  if(*(str+n-1) == c) *(trimmed+strlen(trimmed)-1) = '\0';
+  if(*(str+n-1) == c) *(trimmed+strlen(trimmed)-1) = '\0'; /* trim from the right */
 
   return trimmed;
 }
