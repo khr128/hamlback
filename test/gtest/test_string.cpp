@@ -10,7 +10,7 @@ void StringTests::TearDown()
 TEST_F(StringTests, AppendTest) 
 {
   char *test = strdup("test ");
-  char *appendstr =  strdup("string");
+  char *appendstr =  (char*) "string";
   char *expected = (char *) "test string";
 
   test = append(test, appendstr);
@@ -21,8 +21,8 @@ TEST_F(StringTests, AppendTest)
 
 TEST_F(StringTests, ConcatenateTest) 
 {
-  char *test = strdup("test ");
-  char *appendstr =  strdup("string");
+  char *test = (char *)"test ";
+  char *appendstr =  (char *)"string";
   char *expected = (char *) "test string";
 
   test = concatenate(2, test, appendstr);
