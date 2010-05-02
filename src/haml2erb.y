@@ -90,7 +90,7 @@ name_element:
       char *val = strtrim($7, '"');
 
     /*fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); */
-      haml_current_indent = 0;
+      haml_set_current_indent(0);
 
       push_tag_name($1, "");
       $$=concatenate(10, "<", $1, " id='", $3, "'", " ", symbol, "=\"", val, "\"");
@@ -100,7 +100,7 @@ name_element:
   | VAR POUND VAR
     {
     /*fprintf(stderr, "name: %s, id: %s\n", $1, $3); */
-      haml_current_indent = 0;
+      haml_set_current_indent(0);
 
       push_tag_name($1, "");
       $$=concatenate(5, "<", $1, " id='", $3, "'");
@@ -113,7 +113,7 @@ div:
   POUND VAR EOL
   {
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
-      haml_current_indent = 0;
+      haml_set_current_indent(0);
 
       push_tag_name("div", "");
       $$=concatenate(3, "<div id='", $2, "'>");
@@ -122,7 +122,7 @@ div:
   | POUND VAR CONTENT EOL
   {
     /*fprintf(stderr, "name: div, id: %s\n", $3);*/
-      haml_current_indent = 0;
+      haml_set_current_indent(0);
 
       push_tag_name("div", "");
       $$=concatenate(4, "<div id='", $2, "'>", $3);
@@ -132,7 +132,7 @@ div:
   | POUND VAR EQUAL CONTENT EOL
   {
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
-      haml_current_indent = 0;
+      haml_set_current_indent(0);
 
       push_tag_name("div", "");
       char *ruby_code = strtrim($4, ' ');
@@ -142,17 +142,16 @@ div:
   ;
 
 %%
+void close_tag(struct HAML_STACK *el)
+{
+    printf ("%s</%s>\n", el->indent, el->tag_name);  
+}
+
 main()
 {
   yyparse();
 
   /*close tags which are still open*/
-  struct HAML_STACK el = haml_pop();
-  while(!haml_cmp(el, haml_null))
-  {
-    printf ("%s</%s>\n", el.indent, el.tag_name);  
-    haml_clean(&el);
-    el = haml_pop();
-  }
+  haml_execute_stack(close_tag);
 }
 
