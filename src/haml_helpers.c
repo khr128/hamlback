@@ -41,7 +41,7 @@ void push_tag_name(char *name, char *indent)
   haml_push(el);
 }
 
-char *make_tag_name(char* indent, char *name)
+char *make_tag_name(char *name, char* indent)
 {
   int indent_length = strlen(indent);
   if(indent_length == 0)

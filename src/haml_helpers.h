@@ -17,7 +17,7 @@
 extern void close_previously_parsed_tags();
 extern void haml_free(int n, ...);
 extern void push_tag_name(char *name, char *indent);
-extern char *make_tag_name(char* indent, char *name);
+extern char *make_tag_name(char *name, char* indent);
 
 #ifdef __cplusplus
 }

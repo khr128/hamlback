@@ -62,7 +62,7 @@ tag_element: {/* nothing */}
 indent:
   SPACE_INDENT PCT VAR
     {
-      $$=make_tag_name($1, $3);
+      $$=make_tag_name($3, $1);
       if(!$$)
         yyerror("invalid indentation");
 
@@ -79,7 +79,7 @@ name:
 
   | PCT VAR EOL
     { 
-      $$=make_tag_name(strdup(""), $2);
+      $$=make_tag_name($2, strdup(""));
     }
     ;
 
