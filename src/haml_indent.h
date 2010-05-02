@@ -6,9 +6,13 @@
 #endif
 
 enum indent_type { spaces, tabs, undefined };
-extern enum indent_type haml_indent_type;
-extern int haml_indent_size;
-extern int haml_current_indent;
+
+extern int haml_get_indent_size();
+extern void haml_set_indent_size(int indent_size);
+extern int haml_get_current_indent();
+extern void haml_set_current_indent(int indent_size);
+extern enum indent_type haml_get_indent_type();
+extern void haml_set_indent_type(enum indent_type type);
 
 extern int haml_set_space_indent(size_t indent);
 
