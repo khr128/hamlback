@@ -10,14 +10,15 @@
 void close_previously_parsed_tags()
 {
   /*close previously parsed tags if necessary*/
-  haml_stack = haml_peek();
-  while(!haml_cmp(haml_stack, haml_null) 
-      && strlen(haml_stack.indent) >= haml_current_indent )
+  struct HAML_STACK el = { 0, 0 };
+  el = haml_peek();
+  while(!haml_cmp(el, haml_null) 
+      && strlen(el.indent) >= haml_get_current_indent() )
   {
-    haml_stack = haml_pop();
-    printf ("%s</%s>\n", haml_stack.indent, haml_stack.tag_name);  
-    haml_clean(&haml_stack);
-    haml_stack = haml_peek();
+    el = haml_pop();
+    printf ("%s</%s>\n", el.indent, el.tag_name);  
+    haml_clean(&el);
+    el = haml_peek();
   }
 }
 
@@ -36,9 +37,8 @@ void haml_free(int n, ...)
 void push_tag_name(char *name, char *indent)
 {
   close_previously_parsed_tags();
-  haml_stack.tag_name = strdup(name);
-  haml_stack.indent = strdup(indent);
-  haml_push(haml_stack);
+  struct HAML_STACK el = { name, indent };
+  haml_push(el);
 }
 
 char *make_tag_name(char* indent, char *name)
@@ -46,7 +46,7 @@ char *make_tag_name(char* indent, char *name)
   int indent_length = strlen(indent);
   if(indent_length == 0)
   {
-    haml_current_indent = 0;
+    haml_set_current_indent(0);
   }
   else
   {
