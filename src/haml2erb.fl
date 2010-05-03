@@ -26,6 +26,7 @@ QUOTE         [\'\"]
 NOT_QUOTE     [^\'\"]
 
 %%
+^{SPACE}+{EQUAL}.*            { yylval.strval = strdup(yytext); return RUBY_CODE;}
 ^{SPACE}+                     { yylval.strval = strdup(yytext); return SPACE_INDENT; }
 {EQUAL}                       { return EQUAL; }
 {PCT}                         { return PCT; }
