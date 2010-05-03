@@ -14,6 +14,7 @@ char *acc = 0;
 %token <strval>  SYMBOL
 %token <strval>  STRING
 %token <strval>  CONTENT
+%token <strval>  RUBY_CODE
 %token <strval>  SPACE_INDENT
 %start tag
 
@@ -36,10 +37,18 @@ tag: {/* nothing */}
         acc = 0;
       }
     }
-  | div
+  | tag RUBY_CODE EOL
     {
-        printf ("%s\n", $1);  
-        free($1);
+      /*fprintf(stderr, "<!--==========%s===========-->\n", $2);*/
+      char *indent = strtok($2, "=");
+      char *code = strtrim(strtok(0, "="), ' ');
+      printf ("%s<%%= %s %%>\n", indent, code);  
+      haml_free(2, code, $2);
+    }
+  | tag div
+    {
+      printf ("%s\n", $2);  
+      free($2);
     }
     ;
 
