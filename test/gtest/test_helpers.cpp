@@ -32,6 +32,14 @@ TEST_F(HelpersTests, MakeTagNameTest)
   char *tag_name = strdup("tag_name");
 
   ASSERT_EQ(-1, haml_stack_pointer());
+  struct HAML_STACK expected = { strdup(tag_name), strdup(indent) };
+
   char* generated_name = make_tag_name(tag_name, indent);
+
+  ASSERT_EQ(0, haml_stack_pointer());
+  struct HAML_STACK peeked = haml_peek();
+  ASSERT_EQ(1, haml_cmp(expected, peeked)) << peeked.tag_name << " |" << peeked.indent << '|';
+
+  haml_clean(&expected);
   free(generated_name);
 }
