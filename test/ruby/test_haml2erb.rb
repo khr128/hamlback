@@ -90,4 +90,14 @@ class TestHaml2erb < Test::Unit::TestCase
     assert_equal 0, $?.exitstatus, diff
     assert diff.empty?, diff
   end
+
+  def test_simplest_div_with_nested_ruby_content_and_continuation
+   `#{@ha2er_exe} < #{File.join(@cur_dir, "haml/simplest_div_with_nested_ruby_content_and_continuation.html.haml")} > #{@output_file_name}`
+
+    expected_file_name = File.join(@cur_dir, "expected/simplest_div_with_nested_ruby_content_and_continuation.html.erb")
+    diff = `diff #{@output_file_name} #{expected_file_name}`
+    assert_equal 0, $?.exitstatus, diff
+    assert diff.empty?, diff
+  end
+
 end
