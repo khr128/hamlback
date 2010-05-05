@@ -8,7 +8,7 @@ char *acc = 0;
   char *strval;
 }
 
-%token PCT POUND EQUAL EOL INVALID
+%token PCT POUND EQUAL EOL LINE_CONTINUATION INVALID
 %token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
 %token <strval>  SYMBOL
@@ -39,11 +39,27 @@ tag: {/* nothing */}
     }
   | tag RUBY_CODE EOL
     {
-      /*fprintf(stderr, "<!--==========%s===========-->\n", $2);*/
+      fprintf(stderr, "<!--====*=====%s=====*=====-->\n", $2);
       char *indent = strtok($2, "=");
       char *code = strtrim(strtok(0, "="), ' ');
       printf ("%s<%%= %s %%>\n", indent, code);  
       haml_free(2, code, $2);
+    }
+  | tag RUBY_CODE LINE_CONTINUATION
+    {
+      fprintf(stderr, "<!--====|=====%s=====|=====-->\n", $2);
+      char *indent = strtok($2, "=");
+      char *code = strtrim(strtok(0, "="), ' ');
+      printf ("%s<%%= %s\n", indent, code);  
+
+      haml_set_continue_line(concatenate(2, indent, strdup("%>")));
+      haml_free(2, code, $2);
+    }
+  | tag CONTENT LINE_CONTINUATION
+    {
+      fprintf(stderr, "<!--====||====%s=====||====-->\n", $2);
+      printf ("%s\n", $2);  
+      free($2);
     }
   | tag div
     {
@@ -159,6 +175,11 @@ void close_tag(struct HAML_STACK *el)
 main()
 {
   yyparse();
+
+  /*complete continuation line, if any */
+  char* continue_line = haml_get_continue_line();
+  if(continue_line)
+    printf("%s\n", continue_line);
 
   /*close tags which are still open*/
   haml_execute_stack(close_tag);
