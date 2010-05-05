@@ -13,6 +13,7 @@
 #include "haml_string.h"
 #include "haml_stack.h"
 #include "haml_indent.h"
+#include "haml_continuation.h"
 
 extern void close_previously_parsed_tags();
 extern void haml_free(int n, ...);
