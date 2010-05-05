@@ -7,41 +7,45 @@
 #include "haml2erb.tab.h"
 %}
 
-NUM           [0-9]
-VAR           [a-zA-Z]
-VARNUM        [_0-9a-zA-Z]
-CONTENT       [ _0-9a-zA-Z.]
-SPACE         [ ]
-TAB           \t
-WS            [ \t]
-NOT_WS        [^ \t]
-PCT           %
-POUND         #
-OPEN_BRACE    \{
-CLOSE_BRACE   \}
-COLON         \:
-ARROW         =>
-EQUAL         =
-QUOTE         [\'\"]
-NOT_QUOTE     [^\'\"]
+NUM                 [0-9]
+VAR                 [a-zA-Z]
+VARNUM              [_0-9a-zA-Z]
+CONTENT             [ _0-9a-zA-Z.]
+SPACE               [ ]
+TAB                 \t
+WS                  [ \t]
+NOT_WS              [^ \t]
+PCT                 %
+POUND               #
+OPEN_BRACE          \{
+CLOSE_BRACE         \}
+COLON               \:
+ARROW               =>
+EQUAL               =
+QUOTE               [\'\"]
+NOT_QUOTE           [^\'\"]
+LINE_CONTINUATION   \|\n
 
 %%
-^{SPACE}+{EQUAL}.*            { yylval.strval = strdup(yytext); return RUBY_CODE;}
-^{SPACE}+                     { yylval.strval = strdup(yytext); return SPACE_INDENT; }
-{EQUAL}                       { return EQUAL; }
-{PCT}                         { return PCT; }
-{POUND}                       { return POUND; }
-{OPEN_BRACE}                  { return OPEN_BRACE; }
-{COLON}{VARNUM}+              { yylval.strval = strdup(yytext); return SYMBOL; }
-{ARROW}                       { return ARROW; }
-{QUOTE}{NOT_QUOTE}*{QUOTE}    { yylval.strval = strdup(yytext); return STRING; }
-{CLOSE_BRACE}                 { return CLOSE_BRACE; }
-\n                            { return EOL; }
-{VAR}+{VARNUM}*               { yylval.strval = strdup(yytext); return VAR; }
-{WS}+{CONTENT}+               { yylval.strval = strdup(yytext); return CONTENT; }
-{PCT}+{NUM}+{VAR}+{VARNUM}*   { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
-.                             { fprintf (stderr, "default match: %s\n", yytext); return INVALID;} 
-<<EOF>>                       { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
+^{SPACE}+{EQUAL}.*                                { yylval.strval = strdup(yytext); return RUBY_CODE;}
+{LINE_CONTINUATION}                               { return LINE_CONTINUATION; }
+^{SPACE}+{EQUAL}.*/{LINE_CONTINUATION}            { yylval.strval = strdup(yytext); return RUBY_CODE;}
+.*/{LINE_CONTINUATION}                            { yylval.strval = strdup(yytext); return CONTENT;}
+^{SPACE}+                                         { yylval.strval = strdup(yytext); return SPACE_INDENT; }
+{EQUAL}                                           { return EQUAL; }
+{PCT}                                             { return PCT; }
+{POUND}                                           { return POUND; }
+{OPEN_BRACE}                                      { return OPEN_BRACE; }
+{COLON}{VARNUM}+                                  { yylval.strval = strdup(yytext); return SYMBOL; }
+{ARROW}                                           { return ARROW; }
+{QUOTE}{NOT_QUOTE}*{QUOTE}                        { yylval.strval = strdup(yytext); return STRING; }
+{CLOSE_BRACE}                                     { return CLOSE_BRACE; }
+\n                                                { return EOL; }
+{VAR}+{VARNUM}*                                   { yylval.strval = strdup(yytext); return VAR; }
+{WS}+{CONTENT}+                                   { yylval.strval = strdup(yytext); return CONTENT; }
+{PCT}+{NUM}+{VAR}+{VARNUM}*                       { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
+.                                                 { fprintf (stderr, "default match: %s\n", yytext); return INVALID;} 
+<<EOF>>                                           { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
 %%
 
 yyerror( char *str )
