@@ -4,6 +4,7 @@ cmake_minimum_required (VERSION 2.8)
 set (hamlparser_SRCS
       ${CMAKE_CURRENT_SOURCE_DIR}/haml_stack.c
       ${CMAKE_CURRENT_SOURCE_DIR}/haml_indent.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/haml_continuation.c
       ${CMAKE_CURRENT_SOURCE_DIR}/haml_string.c
       ${CMAKE_CURRENT_SOURCE_DIR}/haml_helpers.c
     )
