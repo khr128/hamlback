@@ -52,7 +52,7 @@ tag: {/* nothing */}
       char *code = strtrim(strtok(0, "="), ' ');
       printf ("%s<%%= %s\n", indent, code);  
 
-      haml_set_continue_line(concatenate(2, indent, strdup("%>")));
+      haml_set_continue_line(concatenate(2, indent, "%>"));
       haml_free(2, code, $2);
     }
   | tag CONTENT LINE_CONTINUATION
