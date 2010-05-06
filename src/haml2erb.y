@@ -15,6 +15,7 @@ char *acc = 0;
 %token <strval>  STRING
 %token <strval>  CONTENT
 %token <strval>  RUBY_CODE
+%token <strval>  RUBY_CODE_NO_INSERT
 %token <strval>  SPACE_INDENT
 %start tag
 
@@ -43,6 +44,14 @@ tag: {/* nothing */}
       char *indent = strtok($2, "=");
       char *code = strtrim(strtok(0, "="), ' ');
       printf ("%s<%%= %s %%>\n", indent, code);  
+      haml_free(2, code, $2);
+    }
+  | tag RUBY_CODE_NO_INSERT EOL
+    {
+      fprintf(stderr, "<!--====-=====%s=====-=====-->\n", $2);
+      char *indent = strtok($2, "-");
+      char *code = strtrim(strtok(0, "-"), ' ');
+      printf ("%s<%% %s %%>\n", indent, code);  
       haml_free(2, code, $2);
     }
   | tag RUBY_CODE LINE_CONTINUATION
