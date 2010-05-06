@@ -8,7 +8,7 @@ char *acc = 0;
   char *strval;
 }
 
-%token PCT POUND EQUAL EOL LINE_CONTINUATION INVALID
+%token PCT POUND EQUAL EOL LINE_CONTINUATION INVALID HAML_COMMENT
 %token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
 %token <strval>  SYMBOL
@@ -32,15 +32,20 @@ tag: {/* nothing */}
     {
       if(acc)
       {
-        /*fprintf(stderr, "<!--==========%s===========-->\n", acc);*/
+        /*fprintf(stderr, "<!--==========|%s|===========-->\n", acc);*/
         printf ("%s>\n", acc);  
         free(acc);
         acc = 0;
       }
     }
+  | tag HAML_COMMENT EOL
+    {
+      fprintf(stderr, "<!--====c=====|haml comment|=====c=====-->\n");
+      /* do nothing */
+    }
   | tag RUBY_CODE EOL
     {
-      fprintf(stderr, "<!--====*=====%s=====*=====-->\n", $2);
+      fprintf(stderr, "<!--====*=====|%s|=====*=====-->\n", $2);
       char *indent = strtok($2, "=");
       char *code = strtrim(strtok(0, "="), ' ');
       printf ("%s<%%= %s %%>\n", indent, code);  
@@ -48,7 +53,7 @@ tag: {/* nothing */}
     }
   | tag RUBY_CODE_NO_INSERT EOL
     {
-      fprintf(stderr, "<!--====-=====%s=====-=====-->\n", $2);
+      fprintf(stderr, "<!--====-=====|%s|=====-=====-->\n", $2);
       char *indent = strtok($2, "-");
       char *code = strtrim(strtok(0, "-"), ' ');
       printf ("%s<%% %s %%>\n", indent, code);  
@@ -56,7 +61,7 @@ tag: {/* nothing */}
     }
   | tag RUBY_CODE LINE_CONTINUATION
     {
-      fprintf(stderr, "<!--====|=====%s=====|=====-->\n", $2);
+      fprintf(stderr, "<!--====|=====|%s|=====|=====-->\n", $2);
       char *indent = strtok($2, "=");
       char *code = strtrim(strtok(0, "="), ' ');
       printf ("%s<%%= %s\n", indent, code);  
@@ -66,7 +71,7 @@ tag: {/* nothing */}
     }
   | tag CONTENT LINE_CONTINUATION
     {
-      fprintf(stderr, "<!--====||====%s=====||====-->\n", $2);
+      fprintf(stderr, "<!--====||====|%s|=====||====-->\n", $2);
       printf ("%s\n", $2);  
       free($2);
     }
