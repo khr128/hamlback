@@ -22,14 +22,17 @@ CLOSE_BRACE         \}
 COLON               \:
 ARROW               =>
 EQUAL               =
+DASH                -
 QUOTE               [\'\"]
 NOT_QUOTE           [^\'\"]
 LINE_CONTINUATION   \|\n
 
 %%
 ^{SPACE}+{EQUAL}.*                                { yylval.strval = strdup(yytext); return RUBY_CODE;}
+^{SPACE}+{DASH}.*                                 { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
 {LINE_CONTINUATION}                               { return LINE_CONTINUATION; }
 ^{SPACE}+{EQUAL}.*/{LINE_CONTINUATION}            { yylval.strval = strdup(yytext); return RUBY_CODE;}
+^{SPACE}+{DASH}.*/{LINE_CONTINUATION}             { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
 .*/{LINE_CONTINUATION}                            { yylval.strval = strdup(yytext); return CONTENT;}
 ^{SPACE}+                                         { yylval.strval = strdup(yytext); return SPACE_INDENT; }
 {EQUAL}                                           { return EQUAL; }
