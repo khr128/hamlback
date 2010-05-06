@@ -23,11 +23,13 @@ COLON               \:
 ARROW               =>
 EQUAL               =
 DASH                -
+SLASH               \/
 QUOTE               [\'\"]
 NOT_QUOTE           [^\'\"]
 LINE_CONTINUATION   \|\n
 
 %%
+^{SPACE}*{SLASH}.*                                { yylval.strval = strdup(yytext); return HTML_COMMENT;}
 ^{SPACE}*{DASH}{POUND}.*                          { return HAML_COMMENT;}
 ^{SPACE}+{EQUAL}.*                                { yylval.strval = strdup(yytext); return RUBY_CODE;}
 ^{SPACE}+{DASH}.*                                 { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}

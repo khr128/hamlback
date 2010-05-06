@@ -17,6 +17,7 @@ char *acc = 0;
 %token <strval>  RUBY_CODE
 %token <strval>  RUBY_CODE_NO_INSERT
 %token <strval>  SPACE_INDENT
+%token <strval>  HTML_COMMENT
 %start tag
 
 %type <strval> tag_element
@@ -43,6 +44,27 @@ tag: {/* nothing */}
       fprintf(stderr, "<!--====c=====|haml comment|=====c=====-->\n");
       /* do nothing */
     }
+  | tag HTML_COMMENT EOL
+    {
+      fprintf(stderr, "<!--====/=====|%s|=====/=====-->\n", $2);
+      char *indent = strtok($2, "/");
+      if(indent != $2)
+      {
+        char *code = strtrim(indent, ' ');
+        printf ("<!-- %s -->\n", code);
+        haml_free(2, code, $2);
+
+        haml_set_current_indent(0);
+      }
+      else
+      {
+        char *code = strtrim(strtok(0, "="), ' ');
+        printf ("%s<!-- %s -->\n", indent, code);  
+        haml_set_space_indent(strlen(indent));
+        haml_free(2, code, $2);
+      }
+    }
+
   | tag RUBY_CODE EOL
     {
       fprintf(stderr, "<!--====*=====|%s|=====*=====-->\n", $2);
@@ -77,6 +99,7 @@ tag: {/* nothing */}
     }
   | tag div
     {
+      /*fprintf(stderr, "<!--====d=====|%s|=====d=====-->\n", $2);*/
       printf ("%s\n", $2);  
       free($2);
     }
