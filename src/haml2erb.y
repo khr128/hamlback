@@ -14,6 +14,7 @@ char *acc = 0;
 %token <strval>  SYMBOL
 %token <strval>  STRING
 %token <strval>  CONTENT
+%token <strval>  ESCAPED_CONTENT
 %token <strval>  RUBY_CODE
 %token <strval>  RUBY_CODE_NO_INSERT
 %token <strval>  SPACE_INDENT
@@ -45,6 +46,27 @@ tag: {/* nothing */}
       printf ("%s\n", $2);  
       free($2);
     }
+  | tag ESCAPED_CONTENT EOL
+    {
+      fprintf(stderr, "<!--====\\t=====|%s|=====\\t=====-->\n", $2);
+      char *indent = strtok($2, "\\");
+      if(indent != $2)
+      {
+        char *content = strtrim(indent, ' ');
+        printf ("%s\n", content);
+        haml_free(2, content, $2);
+
+        haml_set_current_indent(0);
+      }
+      else
+      {
+        char *content = strtrim(strtok(0, "\\"), ' ');
+        printf ("%s%s\n", indent, content);  
+        haml_set_space_indent(strlen(indent));
+        haml_free(2, content, $2);
+      }
+    }
+
   | tag HAML_COMMENT EOL
     {
       fprintf(stderr, "<!--====c=====|haml comment|=====c=====-->\n");
@@ -64,7 +86,7 @@ tag: {/* nothing */}
       }
       else
       {
-        char *code = strtrim(strtok(0, "="), ' ');
+        char *code = strtrim(strtok(0, "/"), ' ');
         printf ("%s<!-- %s -->\n", indent, code);  
         haml_set_space_indent(strlen(indent));
         haml_free(2, code, $2);
