@@ -10,7 +10,7 @@
 NUM                 [0-9]
 VAR                 [a-zA-Z]
 VARNUM              [_0-9a-zA-Z]
-CONTENT             [ _0-9a-zA-Z.]
+CONTENT             [ _0-9a-zA-Z.<>="!/]
 SPACE               [ ]
 TAB                 \t
 WS                  [ \t]
@@ -44,11 +44,11 @@ LINE_CONTINUATION   \|\n
 {OPEN_BRACE}                                      { return OPEN_BRACE; }
 {COLON}{VARNUM}+                                  { yylval.strval = strdup(yytext); return SYMBOL; }
 {ARROW}                                           { return ARROW; }
-{QUOTE}{NOT_QUOTE}*{QUOTE}                        { yylval.strval = strdup(yytext); return STRING; }
 {CLOSE_BRACE}                                     { return CLOSE_BRACE; }
 \n                                                { return EOL; }
 {VAR}+{VARNUM}*                                   { yylval.strval = strdup(yytext); return VAR; }
 {WS}+{CONTENT}+                                   { yylval.strval = strdup(yytext); return CONTENT; }
+{QUOTE}{NOT_QUOTE}*{QUOTE}                        { yylval.strval = strdup(yytext); return STRING; }
 {PCT}+{NUM}+{VAR}+{VARNUM}*                       { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
 .                                                 { yylval.strval = strdup(yytext); return CONTENT;} 
 <<EOF>>                                           { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
