@@ -39,6 +39,12 @@ tag: {/* nothing */}
         acc = 0;
       }
     }
+  | tag CONTENT EOL
+    {
+      fprintf(stderr, "<!--====t=====|%s|=====t=====-->\n", $2);
+      printf ("%s\n", $2);  
+      free($2);
+    }
   | tag HAML_COMMENT EOL
     {
       fprintf(stderr, "<!--====c=====|haml comment|=====c=====-->\n");

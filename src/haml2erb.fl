@@ -50,7 +50,7 @@ LINE_CONTINUATION   \|\n
 {VAR}+{VARNUM}*                                   { yylval.strval = strdup(yytext); return VAR; }
 {WS}+{CONTENT}+                                   { yylval.strval = strdup(yytext); return CONTENT; }
 {PCT}+{NUM}+{VAR}+{VARNUM}*                       { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
-.                                                 { fprintf (stderr, "default match: %s\n", yytext); return INVALID;} 
+.                                                 { yylval.strval = strdup(yytext); return CONTENT;} 
 <<EOF>>                                           { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
 %%
 
