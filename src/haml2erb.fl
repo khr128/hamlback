@@ -23,6 +23,7 @@ COLON               \:
 ARROW               =>
 EQUAL               =
 DASH                -
+DASH_POUND          -#
 SLASH               \/
 ESCAPE              \\
 QUOTE               [\'\"]
@@ -32,9 +33,9 @@ LINE_CONTINUATION   \|\n
 %%
 ^{SPACE}*{ESCAPE}.*                               { yylval.strval = strdup(yytext); return ESCAPED_CONTENT;}
 ^{SPACE}*{SLASH}.*                                { yylval.strval = strdup(yytext); return HTML_COMMENT;}
-^{SPACE}*{DASH}{POUND}.*                          { return HAML_COMMENT;}
-^{SPACE}+{EQUAL}.*                                { yylval.strval = strdup(yytext); return RUBY_CODE;}
-^{SPACE}+{DASH}.*                                 { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
+{DASH_POUND}.*                                    { return HAML_COMMENT;}
+^{SPACE}*{EQUAL}.*                                { yylval.strval = strdup(yytext); return RUBY_CODE;}
+^{SPACE}*{DASH}.*                                 { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
 {LINE_CONTINUATION}                               { return LINE_CONTINUATION; }
 ^{SPACE}+{EQUAL}.*/{LINE_CONTINUATION}            { yylval.strval = strdup(yytext); return RUBY_CODE;}
 ^{SPACE}+{DASH}.*/{LINE_CONTINUATION}             { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
@@ -51,7 +52,6 @@ LINE_CONTINUATION   \|\n
 {VAR}+{VARNUM}*                                   { yylval.strval = strdup(yytext); return VAR; }
 {WS}+{CONTENT}+                                   { yylval.strval = strdup(yytext); return CONTENT; }
 {QUOTE}{NOT_QUOTE}*{QUOTE}                        { yylval.strval = strdup(yytext); return STRING; }
-{PCT}+{NUM}+{VAR}+{VARNUM}*                       { fprintf (stderr, "Invalid tag name match: %s\n", yytext); return INVALID; }
 .                                                 { yylval.strval = strdup(yytext); return CONTENT;} 
 <<EOF>>                                           { fprintf (stderr, "End of parse.\n" ); yyterminate(); }
 %%

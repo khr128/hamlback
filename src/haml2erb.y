@@ -34,7 +34,7 @@ tag: {/* nothing */}
     {
       if(acc)
       {
-        /*fprintf(stderr, "<!--==========|%s|===========-->\n", acc);*/
+        fprintf(stderr, "<!--====acc======|%s|===========-->\n", acc);
         printf ("%s>\n", acc);  
         free(acc);
         acc = 0;
@@ -97,17 +97,37 @@ tag: {/* nothing */}
     {
       fprintf(stderr, "<!--====*=====|%s|=====*=====-->\n", $2);
       char *indent = strtok($2, "=");
-      char *code = strtrim(strtok(0, "="), ' ');
-      printf ("%s<%%= %s %%>\n", indent, code);  
-      haml_free(2, code, $2);
+      if(indent != $2)
+      {
+        char *code = strtrim(indent, ' ');
+        close_previously_parsed_tags();
+        printf ("<%%= %s %%>\n", code);  
+        haml_free(2, code, $2);
+
+        haml_set_current_indent(0);
+      }
+      else
+      {
+        char *code = strtrim($2+strlen(indent)+1, ' ');
+        if(haml_set_space_indent(strlen(indent)))
+        {
+          close_previously_parsed_tags();
+          printf ("%s<%%= %s %%>\n", indent, code);  
+          haml_free(2, code, $2);
+        }
+      }
     }
   | tag RUBY_CODE_NO_INSERT EOL
     {
       fprintf(stderr, "<!--====-=====|%s|=====-=====-->\n", $2);
       char *indent = strtok($2, "-");
-      char *code = strtrim(strtok(0, "-"), ' ');
-      printf ("%s<%% %s %%>\n", indent, code);  
-      haml_free(2, code, $2);
+      char *code = strtrim($2+strlen(indent)+1, ' ');
+      if(haml_set_space_indent(strlen(indent)))
+      {
+        close_previously_parsed_tags();
+        printf ("%s<%% %s %%>\n", indent, code);  
+        haml_free(2, code, $2);
+      }
     }
   | tag RUBY_CODE LINE_CONTINUATION
     {
@@ -158,6 +178,25 @@ indent:
 
       /*fprintf(stderr, "indent_size: %d\n", haml_current_indent);*/
     }
+  | SPACE_INDENT PCT VAR CONTENT
+    {
+      fprintf(stderr, "<!--====itag=====|%s<%s>%s|=====itag=====-->\n", $1, $3, $4);
+      char *content = strtrim($4, ' ');
+      printf("%s<%s>%s</%s>\n", $1, $3, content, $3);
+      haml_free(4, $1, $3, $4, content);
+      $$ = 0;
+    }
+  | SPACE_INDENT PCT VAR  OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE CONTENT
+    {
+      fprintf(stderr, "<!--====itaghash=====|%s<%s>%s|=====itaghash=====-->\n", $1, $3, $9);
+      char *symbol = strtrim($5, ':');
+      char *val = strtrim($7, '"');
+      char *content = strtrim($9, ' ');
+      printf("%s<%s %s='%s'>%s</%s>\n", $1, $3, symbol, val, content, $3);
+      haml_free(8, $1, $3, $5, $7, $9, symbol, val, content);
+      $$ = 0;
+    }
+
     ;
 
 name:
@@ -167,9 +206,17 @@ name:
       free($2);
     }
 
-  | PCT VAR EOL
+  | PCT VAR
     { 
+      fprintf(stderr, "<!--====var=====|%s|=====var=====-->\n", $2);
       $$=make_tag_name($2, strdup(""));
+    }
+  | PCT VAR CONTENT
+    {
+      fprintf(stderr, "<!--====tag=====|<%s>%s|=====tag=====-->\n", $2, $3);
+      char *content = strtrim($3, ' ');
+      printf("<%s>%s</%s>\n", $2, content, $2);
+      haml_free(3, $2, $3, content);
     }
     ;
 
@@ -234,6 +281,7 @@ div:
 %%
 void close_tag(struct HAML_STACK *el)
 {
+    fprintf(stderr, "%s</%s>\n", el->indent, el->tag_name);
     printf ("%s</%s>\n", el->indent, el->tag_name);  
 }
 
