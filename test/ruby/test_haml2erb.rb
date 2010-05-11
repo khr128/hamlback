@@ -154,4 +154,13 @@ class TestHaml2erb < Test::Unit::TestCase
     assert diff.empty?, diff
   end
 
+  def test_ps_users_new
+   `#{@ha2er_exe} < #{File.join(@cur_dir, "haml/ps_users/new.html.haml")} > #{@output_file_name}`
+
+    expected_file_name = File.join(@cur_dir, "expected/ps_users/new.html.erb")
+    diff = `diff #{@output_file_name} #{expected_file_name}`
+    assert_equal 0, $?.exitstatus, diff
+    assert diff.empty?, diff
+  end
+
 end
