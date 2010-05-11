@@ -21,7 +21,7 @@ int haml_set_space_indent(size_t indent)
     haml_current_indent = indent;
     haml_indent_size = indent;
     haml_indent_type = spaces;
-    return 1; /* this is were indentation is initially defined */
+    return 1; /* this is where indentation is initially defined */
   }
 
   if(haml_indent_type != spaces) return 0; /* using wrong indent type */
