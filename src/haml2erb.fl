@@ -35,10 +35,9 @@ LINE_CONTINUATION   \|\n
 ^{SPACE}*{SLASH}.*                                { yylval.strval = strdup(yytext); return HTML_COMMENT;}
 {DASH_POUND}.*                                    { return HAML_COMMENT;}
 ^{SPACE}*{EQUAL}.*                                { yylval.strval = strdup(yytext); return RUBY_CODE;}
-^{SPACE}*{DASH}.*                                 { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
+^{SPACE}*{DASH}.*{LINE_CONTINUATION}?             { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
 {LINE_CONTINUATION}                               { return LINE_CONTINUATION; }
 ^{SPACE}+{EQUAL}.*/{LINE_CONTINUATION}            { yylval.strval = strdup(yytext); return RUBY_CODE;}
-^{SPACE}+{DASH}.*/{LINE_CONTINUATION}             { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
 .*/{LINE_CONTINUATION}                            { yylval.strval = strdup(yytext); return CONTENT;}
 ^{SPACE}+                                         { yylval.strval = strdup(yytext); return SPACE_INDENT; }
 {EQUAL}                                           { return EQUAL; }
