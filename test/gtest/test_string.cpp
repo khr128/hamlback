@@ -42,3 +42,15 @@ TEST_F(StringTests, TrimTest)
   free(test);
   free(trimmed);
 }
+
+TEST_F(StringTests, TrimTest2) 
+{
+  char *test = strdup("-+test-+");
+  char *expected = (char *) "test-";
+  char *trimmed = strtrim2(test, "-+");
+
+  ASSERT_EQ(0, strcmp(expected, trimmed));
+
+  free(test);
+  free(trimmed);
+}
