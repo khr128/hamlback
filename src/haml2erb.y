@@ -49,7 +49,7 @@ tag: {/* nothing */}
   | tag ESCAPED_CONTENT EOL
     {
       fprintf(stderr, "<!--====\\t=====|%s|=====\\t=====-->\n", $2);
-      print_indented_tag($2, "\\", "%s\n", " ");
+      free(print_indented_tag($2, "\\", "%s\n", " "));
     }
 
   | tag HAML_COMMENT EOL
@@ -60,18 +60,20 @@ tag: {/* nothing */}
   | tag HTML_COMMENT EOL
     {
       fprintf(stderr, "<!--====/=====|%s|=====/=====-->\n", $2);
-      print_indented_tag($2, "/", "<!-- %s -->\n", " ");
+      free(print_indented_tag($2, "/", "<!-- %s -->\n", " "));
     }
 
   | tag RUBY_CODE EOL
     {
       fprintf(stderr, "<!--====*=====|%s|=====*=====-->\n", $2);
-      print_indented_tag($2, "=", "<%%= %s %%>\n", " ");
+      free(print_indented_tag($2, "=", "<%%= %s %%>\n", " "));
     }
   | tag RUBY_CODE_NO_INSERT
     {
       fprintf(stderr, "<!--====-=====|%s|=====-=====-->\n", $2);
-      print_indented_tag($2, "-", "<%% %s %%>\n", " \n");
+      char* indent = print_indented_tag($2, "-", "<%% %s %%>\n", " \n");
+      push_tag_name(0, indent, ruby_code);
+      free(indent);
     }
   | tag RUBY_CODE LINE_CONTINUATION
     {
@@ -173,7 +175,7 @@ name_element:
     /*fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); */
       haml_set_current_indent(0);
 
-      push_tag_name($1, "");
+      push_tag_name($1, "", html);
       $$=concatenate(10, "<", $1, " id='", $3, "'", " ", symbol, "=\"", val, "\"");
 
       haml_free(6, $1, $3, symbol, val, $5, $7);
@@ -183,7 +185,7 @@ name_element:
     /*fprintf(stderr, "name: %s, id: %s\n", $1, $3); */
       haml_set_current_indent(0);
 
-      push_tag_name($1, "");
+      push_tag_name($1, "", html);
       $$=concatenate(5, "<", $1, " id='", $3, "'");
 
       haml_free(2, $1, $3);
@@ -196,7 +198,7 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
       haml_set_current_indent(0);
 
-      push_tag_name("div", "");
+      push_tag_name("div", "", html);
       $$=concatenate(3, "<div id='", $2, "'>");
       haml_free(1, $2);
   }
@@ -205,7 +207,7 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $3);*/
       haml_set_current_indent(0);
 
-      push_tag_name("div", "");
+      push_tag_name("div", "", html);
       $$=concatenate(4, "<div id='", $2, "'>", $3);
       haml_free(2, $2, $3);
   }
@@ -215,7 +217,7 @@ div:
     /*fprintf(stderr, "name: div, id: %s\n", $2);*/
       haml_set_current_indent(0);
 
-      push_tag_name("div", "");
+      push_tag_name("div", "", html);
       char *ruby_code = strtrim($4, ' ');
       $$=concatenate(5, "<div id='", $2, "'> <%= ", ruby_code, " %>");
       haml_free(3, $2, $4, ruby_code);
@@ -225,8 +227,17 @@ div:
 %%
 void close_tag(struct HAML_STACK *el)
 {
-    fprintf(stderr, "%s</%s>\n", el->indent, el->tag_name);
-    printf ("%s</%s>\n", el->indent, el->tag_name);  
+    switch (el->type)
+    {
+      case html:
+        fprintf(stderr, "html:%s</%s>\n", el->indent, el->tag_name);
+        printf ("%s</%s>\n", el->indent, el->tag_name);
+        break;
+      case ruby_code:
+        fprintf(stderr, "ruby:%s<%% end %%>\n", el->indent);
+        printf ("%s<%% end %%>\n", el->indent);
+        break;
+    }
 }
 
 main()
@@ -238,6 +249,7 @@ main()
   if(continue_line)
     printf("%s\n", continue_line);
 
+  check_previous_tag();
   /*close tags which are still open*/
   haml_execute_stack(close_tag);
 }
