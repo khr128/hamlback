@@ -34,7 +34,7 @@ tag: {/* nothing */}
     {
       if(acc)
       {
-        fprintf(stderr, "<!--====acc======|%s|===========-->\n", acc);
+        /*fprintf(stderr, "<!--====acc======|%s|===========-->\n", acc);*/
         printf ("%s>\n", acc);  
         free(acc);
         acc = 0;
@@ -49,22 +49,7 @@ tag: {/* nothing */}
   | tag ESCAPED_CONTENT EOL
     {
       fprintf(stderr, "<!--====\\t=====|%s|=====\\t=====-->\n", $2);
-      char *indent = strtok($2, "\\");
-      if(indent != $2)
-      {
-        char *content = strtrim(indent, ' ');
-        printf ("%s\n", content);
-        haml_free(2, content, $2);
-
-        haml_set_current_indent(0);
-      }
-      else
-      {
-        char *content = strtrim(strtok(0, "\\"), ' ');
-        printf ("%s%s\n", indent, content);  
-        haml_set_space_indent(strlen(indent));
-        haml_free(2, content, $2);
-      }
+      print_indented_tag($2, "\\", "%s\n", " ");
     }
 
   | tag HAML_COMMENT EOL
@@ -75,59 +60,18 @@ tag: {/* nothing */}
   | tag HTML_COMMENT EOL
     {
       fprintf(stderr, "<!--====/=====|%s|=====/=====-->\n", $2);
-      char *indent = strtok($2, "/");
-      if(indent != $2)
-      {
-        char *code = strtrim(indent, ' ');
-        printf ("<!-- %s -->\n", code);
-        haml_free(2, code, $2);
-
-        haml_set_current_indent(0);
-      }
-      else
-      {
-        char *code = strtrim(strtok(0, "/"), ' ');
-        printf ("%s<!-- %s -->\n", indent, code);  
-        haml_set_space_indent(strlen(indent));
-        haml_free(2, code, $2);
-      }
+      print_indented_tag($2, "/", "<!-- %s -->\n", " ");
     }
 
   | tag RUBY_CODE EOL
     {
       fprintf(stderr, "<!--====*=====|%s|=====*=====-->\n", $2);
-      char *indent = strtok($2, "=");
-      if(indent != $2)
-      {
-        char *code = strtrim(indent, ' ');
-        close_previously_parsed_tags();
-        printf ("<%%= %s %%>\n", code);  
-        haml_free(2, code, $2);
-
-        haml_set_current_indent(0);
-      }
-      else
-      {
-        char *code = strtrim($2+strlen(indent)+1, ' ');
-        if(haml_set_space_indent(strlen(indent)))
-        {
-          close_previously_parsed_tags();
-          printf ("%s<%%= %s %%>\n", indent, code);  
-          haml_free(2, code, $2);
-        }
-      }
+      print_indented_tag($2, "=", "<%%= %s %%>\n", " ");
     }
-  | tag RUBY_CODE_NO_INSERT EOL
+  | tag RUBY_CODE_NO_INSERT
     {
       fprintf(stderr, "<!--====-=====|%s|=====-=====-->\n", $2);
-      char *indent = strtok($2, "-");
-      char *code = strtrim($2+strlen(indent)+1, ' ');
-      if(haml_set_space_indent(strlen(indent)))
-      {
-        close_previously_parsed_tags();
-        printf ("%s<%% %s %%>\n", indent, code);  
-        haml_free(2, code, $2);
-      }
+      print_indented_tag($2, "-", "<%% %s %%>\n", " \n");
     }
   | tag RUBY_CODE LINE_CONTINUATION
     {
