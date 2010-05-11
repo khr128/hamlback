@@ -6,6 +6,9 @@ add_subdirectory( gtest )
 add_test(run.RubyTests ruby  ${CMAKE_CURRENT_SOURCE_DIR}/ruby/test_haml2erb.rb )
 add_test(run.haml_c_tests ${PROJECT_BINARY_DIR}/gtest/haml_c_tests )
 
+add_test(run.valgrind0 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/gtest/haml_c_tests)
+
 add_test(run.valgrind1 
     ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
     ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/simplest.html.haml)
@@ -72,6 +75,7 @@ add_test(run.valgrind16
 
 set (failRegex "definitely lost: [^0]")
 set_tests_properties(
+    run.valgrind0 
     run.valgrind1 
     run.valgrind2 
     run.valgrind3
