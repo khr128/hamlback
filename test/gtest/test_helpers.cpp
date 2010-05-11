@@ -19,7 +19,7 @@ TEST_F(HelpersTests, PushTagNameTest)
   char *tag_name = (char*)"tag_name";
 
   ASSERT_EQ(-1, haml_stack_pointer());
-  push_tag_name(tag_name, indent);
+  push_tag_name(tag_name, indent, html);
 
   ASSERT_EQ(0, haml_stack_pointer());
   struct HAML_STACK expected = { tag_name, indent };
