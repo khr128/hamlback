@@ -7,6 +7,22 @@
 #include "haml_indent.h"
 #include "haml_string.h"
 
+void check_previous_tag()
+{
+  struct HAML_STACK el = { 0, 0 };
+  el = haml_peek();
+  switch(el.type)
+  {
+    case ruby_code:
+      if(haml_get_current_indent() - strlen(el.indent) != haml_get_indent_size())
+      {
+        el = haml_pop();
+        haml_clean(&el);
+      }
+      break;
+  }
+}
+
 void close_previously_parsed_tags()
 {
   /*close previously parsed tags if necessary*/
@@ -16,7 +32,15 @@ void close_previously_parsed_tags()
       && strlen(el.indent) >= haml_get_current_indent() )
   {
     el = haml_pop();
-    printf ("%s</%s>\n", el.indent, el.tag_name);  
+    switch(el.type)
+    {
+      case html:
+        printf ("%s</%s>\n", el.indent, el.tag_name);
+        break;
+      case ruby_code:
+        printf ("%s<%% end %%>\n", el.indent);
+        break;
+    }
     haml_clean(&el);
     el = haml_peek();
   }
@@ -34,10 +58,10 @@ void haml_free(int n, ...)
   va_end(ptrs);
 }
 
-void push_tag_name(char *name, char *indent)
+void push_tag_name(char *name, char *indent, enum tag_type type)
 {
   close_previously_parsed_tags();
-  struct HAML_STACK el = { name, indent };
+  struct HAML_STACK el = { name, indent, type };
   haml_push(el);
 }
 
@@ -54,7 +78,7 @@ char *make_tag_name(char *name, char* indent)
       return 0;
   }
 
-  push_tag_name(name, indent);
+  push_tag_name(name, indent, html);
 
   char *tag_name = concatenate(3, indent, "<", name);
   haml_free(2, indent, name);
@@ -62,7 +86,7 @@ char *make_tag_name(char *name, char* indent)
   return tag_name;
 }
 
-void print_indented_tag(char *match, char* tokens, const char *code_fmt, const char *trim)
+char* print_indented_tag(char *match, char* tokens, const char *code_fmt, const char *trim)
 {
   char *indent = strtok(match, tokens);
   if(indent != match)
@@ -73,6 +97,7 @@ void print_indented_tag(char *match, char* tokens, const char *code_fmt, const c
     haml_free(2, code, match);
 
     haml_set_current_indent(0);
+    return strdup("");
   }
   else
   {
@@ -82,7 +107,9 @@ void print_indented_tag(char *match, char* tokens, const char *code_fmt, const c
       close_previously_parsed_tags();
       char* indented_code_fmt = append(strdup("%s"), code_fmt);
       printf (indented_code_fmt, indent, code);  
-      haml_free(2, match, indented_code_fmt);
+      indent = strdup(indent);
+      haml_free(3, match, indented_code_fmt, code);
+      return indent;
     }
     free(code);
   }

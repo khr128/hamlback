@@ -17,9 +17,10 @@
 
 extern void close_previously_parsed_tags();
 extern void haml_free(int n, ...);
-extern void push_tag_name(char *name, char *indent);
+extern void push_tag_name(char *name, char *indent, enum tag_type type);
 extern char *make_tag_name(char *name, char* indent);
-extern void print_indented_tag(char *match, char* tokens, const char *code_fmt, const char *trim);
+extern char* print_indented_tag(char *match, char* tokens, const char *code_fmt, const char *trim);
+extern void check_previous_tag();
 
 #ifdef __cplusplus
 }
