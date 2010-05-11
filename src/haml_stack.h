@@ -5,9 +5,12 @@
  extern "C" {
 #endif
 
+enum tag_type { html, ruby_code };
+
 struct HAML_STACK {
   char *tag_name;
   char *indent;
+  enum tag_type type;
 };
 
 extern struct HAML_STACK haml_null;

@@ -60,6 +60,7 @@ void haml_deep_copy(struct HAML_STACK *dst, struct HAML_STACK *src)
 {
   dst->tag_name = src->tag_name ? strdup(src->tag_name) : 0;
   dst->indent = src->indent ? strdup(src->indent) : 0;
+  dst->type = src->type;
 }
 
 void haml_execute_stack(stack_op f)
