@@ -5,9 +5,10 @@
  extern "C" {
 #endif
 
-extern char *append(char *dst, char *src);
+extern char *append(char *dst, const char *src);
 extern char *concatenate(int n, ...);
 extern char *strtrim(char *str, char c);
+extern char *strtrim2(char *str, const char* tokens);
 
 #ifdef __cplusplus
 }

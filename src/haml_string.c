@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-char *append(char *dst, char *src)
+char *append(char *dst, const char *src)
 {
   if(!src) return dst;
   if(!dst) return strdup(src);
@@ -44,5 +44,19 @@ char *strtrim(char *str, char c)
 
   if(*(str+n-1) == c) *(trimmed+strlen(trimmed)-1) = '\0'; /* trim from the right */
 
+  return trimmed;
+}
+
+char *strtrim2(char *str, const char* tokens)
+{
+  char c;
+  char *trimmed = strdup(str);
+  char *tmp = 0;
+  while( c=*tokens++ )
+  {
+    tmp = strtrim(trimmed, c);
+    strcpy(trimmed, tmp);
+    free(tmp);
+  }
   return trimmed;
 }
