@@ -61,3 +61,29 @@ char *make_tag_name(char *name, char* indent)
 
   return tag_name;
 }
+
+void print_indented_tag(char *match, char* tokens, const char *code_fmt, const char *trim)
+{
+  char *indent = strtok(match, tokens);
+  if(indent != match)
+  {
+    char *code = strtrim2(indent, trim);
+    close_previously_parsed_tags();
+    printf (code_fmt, code);  
+    haml_free(2, code, match);
+
+    haml_set_current_indent(0);
+  }
+  else
+  {
+    char *code = strtrim2(match+strlen(indent)+1, trim);
+    if(haml_set_space_indent(strlen(indent)))
+    {
+      close_previously_parsed_tags();
+      char* indented_code_fmt = append(strdup("%s"), code_fmt);
+      printf (indented_code_fmt, indent, code);  
+      haml_free(2, match, indented_code_fmt);
+    }
+    free(code);
+  }
+}
