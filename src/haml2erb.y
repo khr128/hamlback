@@ -132,6 +132,16 @@ indent:
       haml_free(4, $1, $3, $4, content);
       $$ = 0;
     }
+  | SPACE_INDENT PCT VAR EQUAL CONTENT
+    {
+      fprintf(stderr, "<!--====itag_code=====|<%s>%s|=====itag_code=====-->\n", $3, $5);
+      haml_set_space_indent(strlen($1));
+      close_previously_parsed_tags();
+      char *content = strtrim($5, ' ');
+      printf("%s<%s> <%%= %s %%> </%s>\n", $1, $3, content, $3);
+      haml_free(4, $1, $3, $5, content);
+      $$ = 0;
+    }
   | SPACE_INDENT PCT VAR  OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE CONTENT
     {
       fprintf(stderr, "<!--====itaghash=====|%s<%s>%s|=====itaghash=====-->\n", $1, $3, $9);
@@ -159,11 +169,21 @@ name:
     }
   | PCT VAR CONTENT
     {
+      haml_set_current_indent(0);
+      close_previously_parsed_tags();
       fprintf(stderr, "<!--====tag=====|<%s>%s|=====tag=====-->\n", $2, $3);
       char *content = strtrim($3, ' ');
       printf("<%s>%s</%s>\n", $2, content, $2);
       haml_free(3, $2, $3, content);
     }
+  | PCT VAR EQUAL CONTENT
+    {
+      fprintf(stderr, "<!--====tag_code=====|<%s>%s|=====tag_code=====-->\n", $2, $4);
+      char *content = strtrim($4, ' ');
+      printf("<%s> <%%= %s %%> </%s>\n", $2, content, $2);
+      haml_free(3, $2, $4, content);
+    }
+
     ;
 
 name_element:
