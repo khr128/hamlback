@@ -91,8 +91,9 @@ char* print_indented_tag(char *match, char* tokens, const char *code_fmt, const 
   char *indent = strtok(match, tokens);
   if(indent != match)
   {
-    char *code = strtrim2(indent, trim);
+    haml_set_current_indent(0);
     close_previously_parsed_tags();
+    char *code = strtrim2(indent, trim);
     printf (code_fmt, code);  
     haml_free(2, code, match);
 
