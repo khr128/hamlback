@@ -10,7 +10,7 @@
 NUM                 [0-9]
 VAR                 [a-zA-Z]
 VARNUM              [_0-9a-zA-Z]
-CONTENT             [ _0-9a-zA-Z.<>="!/]
+CONTENT             [ _0-9a-zA-Z.<>="!/:]
 SPACE               [ ]
 TAB                 \t
 WS                  [ \t]
