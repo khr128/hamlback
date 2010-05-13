@@ -8,7 +8,7 @@ char *acc = 0;
   char *strval;
 }
 
-%token PCT POUND EQUAL EOL LINE_CONTINUATION INVALID HAML_COMMENT
+%token PCT POUND EQUAL EOL LINE_CONTINUATION INVALID HAML_COMMENT BLANK_LINE
 %token CLOSE_BRACE OPEN_BRACE ARROW  
 %token <strval>  VAR
 %token <strval>  SYMBOL
@@ -50,6 +50,13 @@ tag: {/* nothing */}
     {
       fprintf(stderr, "<!--====\\t=====|%s|=====\\t=====-->\n", $2);
       free(print_indented_tag($2, "\\", "%s\n", " "));
+    }
+  | tag BLANK_LINE
+    {
+      fprintf(stderr, "<!--====\\n=====| |=====\\n=====-->\n");
+      haml_set_current_indent(0);
+      close_previously_parsed_tags();
+      printf ("\n");  
     }
 
   | tag HAML_COMMENT EOL

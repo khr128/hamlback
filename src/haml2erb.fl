@@ -47,6 +47,7 @@ LINE_CONTINUATION   \|\n
 {COLON}{VARNUM}+                                  { yylval.strval = strdup(yytext); return SYMBOL; }
 {ARROW}                                           { return ARROW; }
 {CLOSE_BRACE}                                     { return CLOSE_BRACE; }
+^{SPACE}*\n                                       { return BLANK_LINE; }
 \n                                                { return EOL; }
 {VAR}+{VARNUM}*                                   { yylval.strval = strdup(yytext); return VAR; }
 {WS}+{CONTENT}+                                   { yylval.strval = strdup(yytext); return CONTENT; }
