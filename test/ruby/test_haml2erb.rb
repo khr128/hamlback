@@ -95,4 +95,8 @@ class TestHaml2erb < Test::Unit::TestCase
     template_test "ps_users/edit"
   end
 
+  def test_ps_users__user
+    template_test "ps_users/_user"
+  end
+
 end
