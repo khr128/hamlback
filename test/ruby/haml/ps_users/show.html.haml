@@ -1,0 +1,11 @@
+%p
+  %b Name:
+  =h @user.name
+%p
+  %b Password:
+  =h @user.password
+%p
+  %b Roles:
+  =h @user.roles
+= link_to 'Edit', edit_user_path(@user)
+= link_to 'Back', users_path
