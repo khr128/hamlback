@@ -77,6 +77,10 @@ add_test(run.valgrind17
     ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
     ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/ps_users/new.html.haml)
 
+add_test(run.valgrind18 
+    ${CMAKE_CURRENT_SOURCE_DIR}/valgrind.sh ${PROJECT_BINARY_DIR}/../src/ha2er  
+    ${CMAKE_CURRENT_SOURCE_DIR}/ruby/haml/ps_users/show.html.haml)
+
 set (failRegex "definitely lost: [^0]")
 set_tests_properties(
     run.valgrind0 
@@ -96,6 +100,7 @@ set_tests_properties(
     run.valgrind15
     run.valgrind16
     run.valgrind17
+    run.valgrind18
     PROPERTIES
     FAIL_REGULAR_EXPRESSION "${failRegex}"
     )
