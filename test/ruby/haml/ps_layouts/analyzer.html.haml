@@ -1,0 +1,12 @@
+!!!
+%html{:xmlns=>"http://www.w3.org/1999/xhtml", :"xml:lang"=>"en", :lang=>"en"}
+  %head
+    %meta{:"http-equiv"=>"content-type", :content=>"text/html;charset=UTF-8"}
+    %title= "Punctuated Silence: #{controller.controller_path} -- #{controller.action_name}"
+    = stylesheet_link_tag 'dropdown_menus'
+    = javascript_include_tag :defaults
+    
+  %body
+    = render(:partial => "layouts/menu2", :locals => {:subtitle=>"#{controller.controller_path}"})
+    %p{:style=>"color: red"}= flash[:notice]
+    = yield
