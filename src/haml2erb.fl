@@ -10,7 +10,7 @@
 NUM                 [0-9]
 VAR                 [a-zA-Z]
 VARNUM              [_0-9a-zA-Z]
-CONTENT             [ _0-9a-zA-Z.,<>()="'!?/:]
+CONTENT             [ _0-9a-zA-Z.,<>(){}\[\]\-="'!?/:#]
 SPACE               [ ]
 TAB                 \t
 WS                  [ \t]
@@ -23,14 +23,17 @@ COLON               \:
 ARROW               =>
 EQUAL               =
 DASH                -
+COMMA               , 
 DASH_POUND          -#
 SLASH               \/
 ESCAPE              \\
 QUOTE               [\'\"]
 NOT_QUOTE           [^\'\"]
 LINE_CONTINUATION   \|\n
+DOCTYPE             !!!
 
 %%
+^{DOCTYPE}                                        { return DOCTYPE;}
 ^{SPACE}*{ESCAPE}.*                               { yylval.strval = strdup(yytext); return ESCAPED_CONTENT;}
 ^{SPACE}*{SLASH}.*                                { yylval.strval = strdup(yytext); return HTML_COMMENT;}
 {DASH_POUND}.*                                    { return HAML_COMMENT;}
@@ -41,10 +44,12 @@ LINE_CONTINUATION   \|\n
 .*/{LINE_CONTINUATION}                            { yylval.strval = strdup(yytext); return CONTENT;}
 ^{SPACE}+                                         { yylval.strval = strdup(yytext); return SPACE_INDENT; }
 {EQUAL}                                           { return EQUAL; }
+{COMMA}{SPACE}*                                   { return COMMA; }
 {PCT}                                             { return PCT; }
 {POUND}                                           { return POUND; }
 {OPEN_BRACE}                                      { return OPEN_BRACE; }
 {COLON}{VARNUM}+                                  { yylval.strval = strdup(yytext); return SYMBOL; }
+{COLON}{QUOTE}{NOT_QUOTE}*{QUOTE}                 { yylval.strval = strdup(yytext); return QUOTED_SYMBOL; }
 {ARROW}                                           { return ARROW; }
 {CLOSE_BRACE}                                     { return CLOSE_BRACE; }
 ^{SPACE}*\n                                       { return BLANK_LINE; }
