@@ -31,6 +31,10 @@ class TestHaml2erb < Test::Unit::TestCase
     template_test "simplest_with_id_and_hash"
   end
 
+  def test_simplest_tag_with_two_hashes
+    template_test "simplest_with_two_hashes"
+  end
+
   def test_one_level_nested_tags
     template_test "one_level_nested_tags"
   end
@@ -97,6 +101,10 @@ class TestHaml2erb < Test::Unit::TestCase
 
   def test_ps_users__user
     template_test "ps_users/_user"
+  end
+
+  def test_ps_users_analyzer
+    template_test "ps_layouts/analyzer"
   end
 
 end
