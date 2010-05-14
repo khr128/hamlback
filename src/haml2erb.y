@@ -8,10 +8,12 @@ char *acc = 0;
   char *strval;
 }
 
+%token DOCTYPE
 %token PCT POUND EQUAL EOL LINE_CONTINUATION INVALID HAML_COMMENT BLANK_LINE
-%token CLOSE_BRACE OPEN_BRACE ARROW  
+%token CLOSE_BRACE OPEN_BRACE ARROW COMMA
 %token <strval>  VAR
 %token <strval>  SYMBOL
+%token <strval>  QUOTED_SYMBOL
 %token <strval>  STRING
 %token <strval>  CONTENT
 %token <strval>  ESCAPED_CONTENT
@@ -27,11 +29,17 @@ char *acc = 0;
 %type <strval> div
 %type <strval> name_element
 %type <strval> tag
+%type <strval> key_value
+%type <strval> hash
 %%
 
-tag: {/* nothing */}
+tag: 
+  {/* nothing */
+      fprintf(stderr, "<!--====start=====|tag|=====start=====-->\n");
+  }
   | tag tag_element EOL 
     {
+      fprintf(stderr, "<!--====elem=====|tag|=====elem=====-->\n");
       if(acc)
       {
         /*fprintf(stderr, "<!--====acc======|%s|===========-->\n", acc);*/
@@ -54,11 +62,12 @@ tag: {/* nothing */}
   | tag BLANK_LINE
     {
       fprintf(stderr, "<!--====\\n=====| |=====\\n=====-->\n");
-      haml_set_current_indent(0);
-      close_previously_parsed_tags();
-      printf ("\n");  
     }
-
+  | tag DOCTYPE EOL
+    {
+      fprintf(stderr, "<!--====!!!=====| |=====!!!=====-->\n");
+      printf ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");  
+    }
   | tag HAML_COMMENT EOL
     {
       fprintf(stderr, "<!--====c=====|haml comment|=====c=====-->\n");
@@ -115,8 +124,14 @@ tag_element: {/* nothing */}
  
   | tag_element indent  
     {
-      acc = append(acc, $2);
-      free($2);
+      if($2)
+      {
+        fprintf(stderr, "<!--====indent=====|%s|=====indent=====-->\n", $2);
+        acc = append(acc, $2);
+        free($2);
+      }
+      else
+        acc = 0;
     }
   | tag_element VAR     { yyerror($1); $$ = 0; free($1); }
   | tag_element INVALID { yyerror("invalid tag_element");  $$ = 0; }
@@ -149,17 +164,64 @@ indent:
       haml_free(4, $1, $3, $5, content);
       $$ = 0;
     }
-  | SPACE_INDENT PCT VAR  OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE CONTENT
+  | SPACE_INDENT PCT VAR OPEN_BRACE hash CLOSE_BRACE EQUAL CONTENT
     {
-      fprintf(stderr, "<!--====itaghash=====|%s<%s>%s|=====itaghash=====-->\n", $1, $3, $9);
-      char *symbol = strtrim($5, ':');
-      char *val = strtrim($7, '"');
-      char *content = strtrim($9, ' ');
-      printf("%s<%s %s='%s'>%s</%s>\n", $1, $3, symbol, val, content, $3);
-      haml_free(8, $1, $3, $5, $7, $9, symbol, val, content);
+      fprintf(stderr, "<!--====itag_code=====|<%s>%s|=====itag_code=====-->\n", $3, $5);
+      haml_set_space_indent(strlen($1));
+      close_previously_parsed_tags();
+      char *content = strtrim($8, ' ');
+      printf("%s<%s %s> <%%= %s %%> </%s>\n", $1, $3, $5, content, $3);
+      haml_free(5, $1, $3, $5, $8, content);
+      $$ = 0;
+    }
+  | SPACE_INDENT PCT VAR  OPEN_BRACE hash CLOSE_BRACE
+    {
+      fprintf(stderr, "<!--====itaghash_noc=====|%s<%s %s>|=====itaghash_noc=====-->\n", $1, $3, $5);
+      printf("%s<%s %s />\n", $1, $3, $5);
+      haml_free(3, $1, $3, $5);
       $$ = 0;
     }
 
+  | SPACE_INDENT PCT VAR  OPEN_BRACE hash CLOSE_BRACE CONTENT
+    {
+      fprintf(stderr, "<!--====itaghash=====|%s<%s %s>%s|=====itaghash=====-->\n", $1, $3, $5, $7);
+      char *content = strtrim($7, ' ');
+      printf("%s<%s %s>%s</%s>\n", $1, $3, $5, content, $3);
+      haml_free(5, $1, $3, $5, $7, content);
+      $$ = 0;
+    }
+    ;
+
+key_value:
+    SYMBOL ARROW STRING
+    {
+      fprintf(stderr, "<!--====hash=====|%s %s|=====hash=====-->\n", $1, $3);
+      char *symbol = strtrim($1, ':');
+      char *val = strtrim($3, '"');
+      $$=concatenate(4, symbol, "=\"", val, "\"");
+      haml_free(4, $1, $3, symbol, val);
+    }
+    | QUOTED_SYMBOL ARROW STRING
+    {
+      fprintf(stderr, "<!--====qhash=====|%s %s|=====qhash=====-->\n", $1, $3);
+      char *symbol = strtrim2($1, ":\"");
+      char *val = strtrim($3, '"');
+      $$=concatenate(4, symbol, "=\"", val, "\"");
+      haml_free(4, $1, $3, symbol, val);
+    }
+    ;
+
+hash:
+    key_value 
+{
+      fprintf(stderr, "<!--====kv=====|%s|=====kv=====-->\n", $1);
+}
+    | hash COMMA key_value
+    {
+      fprintf(stderr, "<!--====hash,kv=====|%s %s|=====hash,kv=====-->\n", $1, $3);
+      $$=concatenate(3, $1, " ", $3);
+      haml_free(2, $1, $3);
+    }
     ;
 
 name:
@@ -194,19 +256,26 @@ name:
     ;
 
 name_element:
-  VAR POUND VAR OPEN_BRACE SYMBOL ARROW STRING CLOSE_BRACE
+  VAR POUND VAR OPEN_BRACE hash CLOSE_BRACE
     {
-      char *symbol = strtrim($5, ':');
-      char *val = strtrim($7, '"');
-
-    /*fprintf(stderr, "name: %s id: %s sym: %s val: %s\n", $1, $3, symbol, val); */
       haml_set_current_indent(0);
 
       push_tag_name($1, "", html);
-      $$=concatenate(10, "<", $1, " id='", $3, "'", " ", symbol, "=\"", val, "\"");
+      $$=concatenate(6, "<", $1, " id='", $3, "' ", $5);
 
-      haml_free(6, $1, $3, symbol, val, $5, $7);
+      haml_free(3, $1, $3, $5);
     }
+
+  | VAR OPEN_BRACE hash CLOSE_BRACE
+    {
+      haml_set_current_indent(0);
+
+      push_tag_name($1, "", html);
+      $$=concatenate(4, "<", $1, " ", $3);
+
+      haml_free(2, $1, $3);
+    }
+
   | VAR POUND VAR
     {
     /*fprintf(stderr, "name: %s, id: %s\n", $1, $3); */
