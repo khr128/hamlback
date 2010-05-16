@@ -1,6 +1,7 @@
 %{
 #include <haml_helpers.h>
 char *acc = 0;
+int just_indent = 0;
 %}
 
 %union {
@@ -42,8 +43,8 @@ tag:
       fprintf(stderr, "<!--====elem=====|tag|=====elem=====-->\n");
       if(acc)
       {
-        /*fprintf(stderr, "<!--====acc======|%s|===========-->\n", acc);*/
-        printf ("%s>\n", acc);  
+        fprintf(stderr, "<!--====acc======|%s|===========-->\n", acc);
+        printf ("<%s>\n", acc);  
         free(acc);
         acc = 0;
       }
@@ -68,7 +69,7 @@ tag:
       fprintf(stderr, "<!--====!!!=====| |=====!!!=====-->\n");
       printf ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");  
     }
-  | tag HAML_COMMENT EOL
+  | tag HAML_COMMENT
     {
       fprintf(stderr, "<!--====c=====|haml comment|=====c=====-->\n");
       /* do nothing */
@@ -118,52 +119,67 @@ tag:
 tag_element: {/* nothing */}
  | tag_element name 
     {
-      acc = append(acc, $2);
-      free($2);
+      if(just_indent)
+      {
+        printf("<%s", $2);
+        acc = 0;
+        just_indent = 0;
+        free($2);
+      }
+      else
+      {
+        haml_set_current_indent(0);
+        close_previously_parsed_tags();
+        acc = append(acc, $2);
+        char* acc_dup = strdup(acc);
+        char* tag_name = strtok(acc_dup, " ");
+        push_tag_name(tag_name, "", html);
+        haml_free(2, $2, acc_dup);
+      }
     }
  
   | tag_element indent  
     {
       if($2)
       {
-        fprintf(stderr, "<!--====indent=====|%s|=====indent=====-->\n", $2);
-        acc = append(acc, $2);
+        fprintf(stderr, "<!--====indent=====|%s>|=====indent=====-->\n", $2);
+        printf ("%s>\n", $2);  
         free($2);
       }
-      else
-        acc = 0;
+      acc = 0;
     }
   | tag_element VAR     { yyerror($1); $$ = 0; free($1); }
   | tag_element INVALID { yyerror("invalid tag_element");  $$ = 0; }
   ;
 
 indent:
-  SPACE_INDENT PCT VAR
+  SPACE_INDENT name
+  {
+    if(!haml_set_space_indent(strlen($1)))
     {
-      $$=make_tag_name($3, $1);
-      if(!$$)
-        yyerror("invalid indentation");
-
-      /*fprintf(stderr, "indent_size: %d\n", haml_current_indent);*/
+      yyerror("invalid indentation");
     }
-  | SPACE_INDENT PCT VAR CONTENT
+    else
     {
-      fprintf(stderr, "<!--====itag=====|%s<%s>%s|=====itag=====-->\n", $1, $3, $4);
-      char *content = strtrim($4, ' ');
-      printf("%s<%s>%s</%s>\n", $1, $3, content, $3);
-      haml_free(4, $1, $3, $4, content);
-      $$ = 0;
-    }
-  | SPACE_INDENT PCT VAR EQUAL CONTENT
-    {
-      fprintf(stderr, "<!--====itag_code=====|<%s>%s|=====itag_code=====-->\n", $3, $5);
-      haml_set_space_indent(strlen($1));
       close_previously_parsed_tags();
-      char *content = strtrim($5, ' ');
-      printf("%s<%s> <%%= %s %%> </%s>\n", $1, $3, content, $3);
-      haml_free(4, $1, $3, $5, content);
-      $$ = 0;
+      if(just_indent)
+      {
+        fprintf(stderr, "<!--====i_name_ji====|%s<%s>|=====i_name_ji=====-->\n", $1, $2);
+        printf("%s<%s", $1, $2);
+        $$=0;
+        haml_free(2, $1, $2);
+      }
+      else
+      {
+        fprintf(stderr, "<!--====i_name====|%s<%s|=====i_name=====-->\n", $1, $2);
+        $$=make_tag_name($2, $1);
+        if(!$$)
+          yyerror("invalid indentation");
+      }
+
+      just_indent = 0;
     }
+  }
   | SPACE_INDENT PCT VAR OPEN_BRACE hash CLOSE_BRACE EQUAL CONTENT
     {
       fprintf(stderr, "<!--====itag_code=====|<%s>%s|=====itag_code=====-->\n", $3, $5);
@@ -174,14 +190,6 @@ indent:
       haml_free(5, $1, $3, $5, $8, content);
       $$ = 0;
     }
-  | SPACE_INDENT PCT VAR  OPEN_BRACE hash CLOSE_BRACE
-    {
-      fprintf(stderr, "<!--====itaghash_noc=====|%s<%s %s>|=====itaghash_noc=====-->\n", $1, $3, $5);
-      printf("%s<%s %s />\n", $1, $3, $5);
-      haml_free(3, $1, $3, $5);
-      $$ = 0;
-    }
-
   | SPACE_INDENT PCT VAR  OPEN_BRACE hash CLOSE_BRACE CONTENT
     {
       fprintf(stderr, "<!--====itaghash=====|%s<%s %s>%s|=====itaghash=====-->\n", $1, $3, $5, $7);
@@ -227,63 +235,60 @@ hash:
 name:
    PCT name_element 
     {
-      acc = append(acc, $2);
-      free($2);
+      fprintf(stderr, "<!--====PCT name_element=====|%s|=====PCT name_element=====-->\n", $2);
+      $$=$2;
+      acc = 0;
+      just_indent=0;
     }
 
   | PCT VAR
     { 
       fprintf(stderr, "<!--====var=====|%s|=====var=====-->\n", $2);
-      $$=make_tag_name($2, strdup(""));
+      $$=$2;
+      acc = 0;
+      just_indent=0;
     }
   | PCT VAR CONTENT
     {
-      haml_set_current_indent(0);
-      close_previously_parsed_tags();
       fprintf(stderr, "<!--====tag=====|<%s>%s|=====tag=====-->\n", $2, $3);
       char *content = strtrim($3, ' ');
-      printf("<%s>%s</%s>\n", $2, content, $2);
+      $$ = concatenate(6, $2, ">", content, "</", $2, ">\n");
       haml_free(3, $2, $3, content);
+      just_indent = 1;
+      acc = 0;
     }
   | PCT VAR EQUAL CONTENT
     {
       fprintf(stderr, "<!--====tag_code=====|<%s>%s|=====tag_code=====-->\n", $2, $4);
       char *content = strtrim($4, ' ');
-      printf("<%s> <%%= %s %%> </%s>\n", $2, content, $2);
+      $$ = concatenate(6, $2, "> <%= ", content, " %> </", $2, ">\n");
       haml_free(3, $2, $4, content);
+      just_indent = 1;
+      acc = 0;
     }
-
     ;
 
 name_element:
   VAR POUND VAR OPEN_BRACE hash CLOSE_BRACE
     {
-      haml_set_current_indent(0);
+      fprintf(stderr, "<!--====ne#{}=====|%s id=%s %s|=====ne#{}=====-->\n", $1, $3, $5);
 
-      push_tag_name($1, "", html);
-      $$=concatenate(6, "<", $1, " id='", $3, "' ", $5);
-
+      $$=concatenate(5, $1, " id='", $3, "' ", $5);
       haml_free(3, $1, $3, $5);
     }
 
   | VAR OPEN_BRACE hash CLOSE_BRACE
     {
-      haml_set_current_indent(0);
-
-      push_tag_name($1, "", html);
-      $$=concatenate(4, "<", $1, " ", $3);
-
+      fprintf(stderr, "<!--====ne{}=====|%s %s|=====ne{}=====-->\n", $1, $3);
+      $$=concatenate(3, $1, " ", $3);
       haml_free(2, $1, $3);
     }
 
   | VAR POUND VAR
     {
-    /*fprintf(stderr, "name: %s, id: %s\n", $1, $3); */
-      haml_set_current_indent(0);
+    fprintf(stderr, "name: %s, id: %s\n", $1, $3); 
 
-      push_tag_name($1, "", html);
-      $$=concatenate(5, "<", $1, " id='", $3, "'");
-
+      $$=concatenate(4, $1, " id='", $3, "'");
       haml_free(2, $1, $3);
     }
     ;
