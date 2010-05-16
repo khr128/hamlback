@@ -36,7 +36,7 @@ DOCTYPE             !!!
 ^{DOCTYPE}                                        { return DOCTYPE;}
 ^{SPACE}*{ESCAPE}.*                               { yylval.strval = strdup(yytext); return ESCAPED_CONTENT;}
 ^{SPACE}*{SLASH}.*                                { yylval.strval = strdup(yytext); return HTML_COMMENT;}
-{DASH_POUND}.*                                    { return HAML_COMMENT;}
+{DASH_POUND}.*\n                                  { return HAML_COMMENT;}
 ^{SPACE}*{EQUAL}.*                                { yylval.strval = strdup(yytext); return RUBY_CODE;}
 ^{SPACE}*{DASH}.*{LINE_CONTINUATION}?             { yylval.strval = strdup(yytext); return RUBY_CODE_NO_INSERT;}
 {LINE_CONTINUATION}                               { return LINE_CONTINUATION; }
