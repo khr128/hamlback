@@ -1,0 +1,16 @@
+<table width="100%">
+  <tr>
+    <td id='rhess_actions'>
+      <ul id='sidebarList'>
+        <li>
+          <%= link_to_remote("New Game", {:url => {:controller => "rhess", :action => "new_game"}}, {:class => "rhess"}) %>
+        </li>
+        <li>
+          <%= link_to_remote("Set Position", {:url => {:controller => "rhess", :action => "set_position"}}, {:class => "rhess"}) %>
+        </li>
+      </ul>
+    </td>
+    <td id='rhess_game'>
+    </td>
+  </tr>
+</table>

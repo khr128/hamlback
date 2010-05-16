@@ -107,4 +107,8 @@ class TestHaml2erb < Test::Unit::TestCase
     template_test "ps_layouts/analyzer"
   end
 
+  def test_ps_ps_rhess_index
+    template_test "ps_rhess/index"
+  end
+
 end

@@ -1,0 +1,9 @@
+%table{:width=>"100%"}
+  %tr
+    %td#rhess_actions
+      %ul#sidebarList
+        %li
+          = link_to_remote("New Game", {:url => {:controller => "rhess", :action => "new_game"}}, {:class => "rhess"})
+        %li
+          = link_to_remote("Set Position", {:url => {:controller => "rhess", :action => "set_position"}}, {:class => "rhess"})
+    %td#rhess_game
