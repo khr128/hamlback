@@ -24,6 +24,7 @@ ARROW               =>
 EQUAL               =
 DASH                -
 COMMA               , 
+PERIOD              \. 
 DASH_POUND          -#
 SLASH               \/
 ESCAPE              \\
@@ -47,6 +48,7 @@ DOCTYPE             !!!
 {COMMA}{SPACE}*                                   { return COMMA; }
 {PCT}                                             { return PCT; }
 {POUND}                                           { return POUND; }
+{PERIOD}                                          { return PERIOD; }
 {OPEN_BRACE}                                      { return OPEN_BRACE; }
 {COLON}{VARNUM}+                                  { yylval.strval = strdup(yytext); return SYMBOL; }
 {COLON}{QUOTE}{NOT_QUOTE}*{QUOTE}                 { yylval.strval = strdup(yytext); return QUOTED_SYMBOL; }
