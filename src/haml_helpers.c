@@ -23,7 +23,7 @@ void check_previous_tag()
   }
 }
 
-void close_previously_parsed_tags()
+void close_previously_parsed_tags(const char* new_tag)
 {
   /*close previously parsed tags if necessary*/
   struct HAML_STACK el = { 0, 0 };
@@ -38,7 +38,10 @@ void close_previously_parsed_tags()
         printf ("%s</%s>\n", el.indent, el.tag_name);
         break;
       case ruby_code:
-        printf ("%s<%% end %%>\n", el.indent);
+        if(strcmp(new_tag, "else") != 0)
+        {
+          printf ("%s<%% end %%>\n", el.indent);
+        }
         break;
     }
     haml_clean(&el);
@@ -60,7 +63,7 @@ void haml_free(int n, ...)
 
 void push_tag_name(char *name, char *indent, enum tag_type type)
 {
-  close_previously_parsed_tags();
+  close_previously_parsed_tags(name);
   struct HAML_STACK el = { name, indent, type };
   haml_push(el);
 }
@@ -94,8 +97,8 @@ char* print_indented_tag(char *match, char* tokens, const char *code_fmt, const 
   if(indent != match)
   {
     haml_set_current_indent(0);
-    close_previously_parsed_tags();
     char *code = strtrim2(indent, trim);
+    close_previously_parsed_tags(code);
     printf (code_fmt, code);  
     haml_free(2, code, match);
 
@@ -107,7 +110,7 @@ char* print_indented_tag(char *match, char* tokens, const char *code_fmt, const 
     char *code = strtrim2(match+strlen(indent)+1, trim);
     if(haml_set_space_indent(strlen(indent)))
     {
-      close_previously_parsed_tags();
+      close_previously_parsed_tags(code);
       char* indented_code_fmt = append(strdup("%s"), code_fmt);
       printf (indented_code_fmt, indent, code);  
       indent = strdup(indent);

@@ -15,7 +15,7 @@
 #include "haml_indent.h"
 #include "haml_continuation.h"
 
-extern void close_previously_parsed_tags();
+extern void close_previously_parsed_tags(const char* new_tag);
 extern void haml_free(int n, ...);
 extern void push_tag_name(char *name, char *indent, enum tag_type type);
 extern char *make_tag_name(char *name, char* indent);
