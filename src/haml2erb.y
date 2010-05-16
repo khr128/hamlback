@@ -11,7 +11,7 @@ int just_indent = 0;
 
 %token DOCTYPE
 %token PCT POUND EQUAL EOL LINE_CONTINUATION INVALID HAML_COMMENT BLANK_LINE
-%token CLOSE_BRACE OPEN_BRACE ARROW COMMA
+%token CLOSE_BRACE OPEN_BRACE ARROW COMMA PERIOD
 %token <strval>  VAR
 %token <strval>  SYMBOL
 %token <strval>  QUOTED_SYMBOL
@@ -129,10 +129,10 @@ tag_element: {/* nothing */}
       else
       {
         haml_set_current_indent(0);
-        close_previously_parsed_tags();
         acc = append(acc, $2);
         char* acc_dup = strdup(acc);
         char* tag_name = strtok(acc_dup, " ");
+        close_previously_parsed_tags(tag_name);
         push_tag_name(tag_name, "", html);
         haml_free(2, $2, acc_dup);
       }
@@ -161,7 +161,7 @@ indent:
     }
     else
     {
-      close_previously_parsed_tags();
+      close_previously_parsed_tags($2);
       if(just_indent)
       {
         fprintf(stderr, "<!--====i_name_ji====|%s<%s>|=====i_name_ji=====-->\n", $1, $2);
@@ -184,7 +184,7 @@ indent:
     {
       fprintf(stderr, "<!--====itag_code=====|<%s>%s|=====itag_code=====-->\n", $3, $5);
       haml_set_space_indent(strlen($1));
-      close_previously_parsed_tags();
+      close_previously_parsed_tags($3);
       char *content = strtrim($8, ' ');
       printf("%s<%s %s> <%%= %s %%> </%s>\n", $1, $3, $5, content, $3);
       haml_free(5, $1, $3, $5, $8, content);
@@ -289,6 +289,14 @@ name_element:
     fprintf(stderr, "name: %s, id: %s\n", $1, $3); 
 
       $$=concatenate(4, $1, " id='", $3, "'");
+      haml_free(2, $1, $3);
+    }
+
+  | VAR PERIOD VAR
+    {
+    fprintf(stderr, "name: %s, id: %s\n", $1, $3); 
+
+      $$=concatenate(4, $1, " class='", $3, "'");
       haml_free(2, $1, $3);
     }
     ;
