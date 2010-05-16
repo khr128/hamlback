@@ -78,10 +78,12 @@ char *make_tag_name(char *name, char* indent)
       return 0;
   }
 
-  push_tag_name(name, indent, html);
+  char* name_dup = strdup(name);
+  char* tag_name_to_push = strtok(name_dup, " ");
+  push_tag_name(tag_name_to_push, indent, html);
 
   char *tag_name = concatenate(3, indent, "<", name);
-  haml_free(2, indent, name);
+  haml_free(3, indent, name, name_dup);
 
   return tag_name;
 }
