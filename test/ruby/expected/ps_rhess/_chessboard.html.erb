@@ -1,0 +1,21 @@
+<% 8.downto(1) do |rank| %>
+  <tr>
+    <% 1.upto(8) do |file| %>
+      <% draggable_id = combine_coords(rank, file) %>
+      <% end %>
+      <% if file%2 == ((rank%2 == 0) ? 0 : 1) %>
+        <td class='blacksquare'>
+          <%= fill_chess_square(eval("@position.#{draggable_id}"), draggable_id) %>
+        </td>
+      <% else %>
+        <td class='whitesquare'>
+          <%= fill_chess_square(eval("@position.#{draggable_id}"), draggable_id) %>
+        </td>
+      <% end %>
+      <% if eval("@position.#{draggable_id}") %>
+        <%= draggable_element(draggable_id, :ghosting=>true, :revert=>true)    %>
+      <% end %>
+      <%= receive_piece draggable_id, :chess_square, :move_piece, game_id %>
+    <% end %>
+  </tr>
+<% end %>

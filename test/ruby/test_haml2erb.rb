@@ -111,4 +111,8 @@ class TestHaml2erb < Test::Unit::TestCase
     template_test "ps_rhess/index"
   end
 
+  def test_ps_ps_rhess__chessboard
+    template_test "ps_rhess/_chessboard"
+  end
+
 end
