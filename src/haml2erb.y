@@ -180,16 +180,6 @@ indent:
       just_indent = 0;
     }
   }
-  | SPACE_INDENT PCT VAR OPEN_BRACE hash CLOSE_BRACE EQUAL CONTENT
-    {
-      fprintf(stderr, "<!--====itag_code=====|<%s>%s|=====itag_code=====-->\n", $3, $5);
-      haml_set_space_indent(strlen($1));
-      close_previously_parsed_tags($3);
-      char *content = strtrim($8, ' ');
-      printf("%s<%s %s> <%%= %s %%> </%s>\n", $1, $3, $5, content, $3);
-      haml_free(5, $1, $3, $5, $8, content);
-      $$ = 0;
-    }
   | SPACE_INDENT PCT VAR  OPEN_BRACE hash CLOSE_BRACE CONTENT
     {
       fprintf(stderr, "<!--====itaghash=====|%s<%s %s>%s|=====itaghash=====-->\n", $1, $3, $5, $7);
@@ -238,43 +228,39 @@ name:
       fprintf(stderr, "<!--====PCT name_element=====|%s|=====PCT name_element=====-->\n", $2);
       $$=$2;
       acc = 0;
-      just_indent=0;
-    }
-
-  | PCT VAR
-    { 
-      fprintf(stderr, "<!--====var=====|%s|=====var=====-->\n", $2);
-      $$=$2;
-      acc = 0;
-      just_indent=0;
-    }
-  | PCT VAR CONTENT
-    {
-      fprintf(stderr, "<!--====tag=====|<%s>%s|=====tag=====-->\n", $2, $3);
-      char *content = strtrim($3, ' ');
-      $$ = concatenate(6, $2, ">", content, "</", $2, ">\n");
-      haml_free(3, $2, $3, content);
-      just_indent = 1;
-      acc = 0;
-    }
-  | PCT VAR EQUAL CONTENT
-    {
-      fprintf(stderr, "<!--====tag_code=====|<%s>%s|=====tag_code=====-->\n", $2, $4);
-      char *content = strtrim($4, ' ');
-      $$ = concatenate(6, $2, "> <%= ", content, " %> </", $2, ">\n");
-      haml_free(3, $2, $4, content);
-      just_indent = 1;
-      acc = 0;
     }
     ;
 
 name_element:
-  VAR POUND VAR OPEN_BRACE hash CLOSE_BRACE
+  VAR
+    { 
+      fprintf(stderr, "<!--====var=====|%s|=====var=====-->\n", $1);
+      $$=$1;
+      just_indent=0;
+    }
+  | VAR CONTENT
+    {
+      fprintf(stderr, "<!--====tag=====|<%s>%s|=====tag=====-->\n", $1, $2);
+      char *content = strtrim($2, ' ');
+      $$ = concatenate(6, $1, ">", content, "</", $1, ">\n");
+      haml_free(3, $1, $2, content);
+      just_indent = 1;
+    }
+  | VAR EQUAL CONTENT
+    {
+      fprintf(stderr, "<!--====tag_code=====|<%s>%s|=====tag_code=====-->\n", $1, $3);
+      char *content = strtrim($3, ' ');
+      $$ = concatenate(6, $1, "> <%= ", content, " %> </", $1, ">\n");
+      haml_free(3, $1, $3, content);
+      just_indent = 1;
+    }
+  | VAR POUND VAR OPEN_BRACE hash CLOSE_BRACE
     {
       fprintf(stderr, "<!--====ne#{}=====|%s id=%s %s|=====ne#{}=====-->\n", $1, $3, $5);
 
       $$=concatenate(5, $1, " id='", $3, "' ", $5);
       haml_free(3, $1, $3, $5);
+      just_indent=0;
     }
 
   | VAR OPEN_BRACE hash CLOSE_BRACE
@@ -282,14 +268,23 @@ name_element:
       fprintf(stderr, "<!--====ne{}=====|%s %s|=====ne{}=====-->\n", $1, $3);
       $$=concatenate(3, $1, " ", $3);
       haml_free(2, $1, $3);
+      just_indent=0;
     }
-
+  | VAR OPEN_BRACE hash CLOSE_BRACE EQUAL CONTENT
+    {
+      fprintf(stderr, "<!--====itag_code=====|<%s>%s|=====itag_code=====-->\n", $1, $3);
+      char *content = strtrim($6, ' ');
+      $$=concatenate(6, $1, " ", $3, "> <%= ", content, " %");
+      haml_free(4, $1, $3, $6, content);
+      just_indent=0;
+    }
   | VAR POUND VAR
     {
     fprintf(stderr, "name: %s, id: %s\n", $1, $3); 
 
       $$=concatenate(4, $1, " id='", $3, "'");
       haml_free(2, $1, $3);
+      just_indent=0;
     }
 
   | VAR PERIOD VAR
@@ -298,6 +293,7 @@ name_element:
 
       $$=concatenate(4, $1, " class='", $3, "'");
       haml_free(2, $1, $3);
+      just_indent=0;
     }
     ;
 

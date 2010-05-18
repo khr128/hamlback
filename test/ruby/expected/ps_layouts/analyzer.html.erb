@@ -9,7 +9,8 @@
   </head>
   <body>
     <%= render(:partial => "layouts/menu2", :locals => {:subtitle=>"#{controller.controller_path}"}) %>
-    <p style="color: red"> <%= flash[:notice] %> </p>
+    <p style="color: red"> <%= flash[:notice] %>
+    </p>
     <%= yield %>
   </body>
 </html>
