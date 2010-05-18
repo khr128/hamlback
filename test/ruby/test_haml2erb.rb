@@ -123,4 +123,8 @@ class TestHaml2erb < Test::Unit::TestCase
     template_test "ps_rhess/_moves"
   end
 
+  def test_ps_ps_rhess__rhess_game
+    template_test "ps_rhess/_rhess_game"
+  end
+
 end

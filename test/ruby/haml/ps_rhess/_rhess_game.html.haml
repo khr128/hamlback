@@ -1,0 +1,15 @@
+%h1 Rails Chess
+%table
+  %tr
+    %td
+      #status
+        =render(:partial=>"status")  
+    %td
+      
+  %tr
+    %td
+      %table#chessboard
+        =render(:partial=>"chessboard", :locals => {:game_id => @game.id})  
+    %td.moves
+      #moves
+        =render(:partial=>"moves")
