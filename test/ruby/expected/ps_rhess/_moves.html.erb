@@ -1,0 +1,28 @@
+<table>
+  <% if @all_rhess_positions %>
+    <tr>
+      <td>
+        N
+      </td>
+      <td>
+        White
+      </td>
+      <td>
+        Black
+      </td>
+    </tr>
+    <% create_move_notation(@all_rhess_positions).each do |move| %>
+      <tr>
+        <td>
+          <%= move[0] %>
+        </td>
+        <td>
+          <%= move[1][0] %>
+        </td>
+        <td>
+          <%= move[1][1] %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</table>

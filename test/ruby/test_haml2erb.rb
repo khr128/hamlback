@@ -115,4 +115,12 @@ class TestHaml2erb < Test::Unit::TestCase
     template_test "ps_rhess/_chessboard"
   end
 
+  def test_ps_ps_rhess__available_pieces
+    template_test "ps_rhess/_available_pieces"
+  end
+
+  def test_ps_ps_rhess__moves
+    template_test "ps_rhess/_moves"
+  end
+
 end

@@ -1,0 +1,17 @@
+%table
+  -if @all_rhess_positions
+    %tr
+      %td
+        N
+      %td
+        White
+      %td
+        Black
+    -create_move_notation(@all_rhess_positions).each do |move|
+      %tr
+        %td
+          =move[0]
+        %td
+          =move[1][0]
+        %td
+          =move[1][1]

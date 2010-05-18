@@ -1,0 +1,25 @@
+%tr
+  %td
+    =fill_chess_square(Chess::Pawn.new("e7", color), "#{color}_pawn", :available_chess_piece)
+    =draggable_element("#{color}_pawn", :ghosting=>true, :revert=>true)    
+    =receive_piece "#{color}_pawn", :chess_square, :remove_piece_in_position, game_id
+  %td
+    =fill_chess_square(Chess::Knight.new("g8", color), "#{color}_knight", :available_chess_piece)
+    =draggable_element("#{color}_knight", :ghosting=>true, :revert=>true)    
+    =receive_piece "#{color}_knight", :chess_square, :remove_piece_in_position, game_id
+  %td
+    =fill_chess_square(Chess::Bishop.new("f8", color), "#{color}_bishop", :available_chess_piece)
+    =draggable_element("#{color}_bishop", :ghosting=>true, :revert=>true)    
+    =receive_piece "#{color}_bishop", :chess_square, :remove_piece_in_position, game_id
+  %td
+    =fill_chess_square(Chess::Rook.new("a8", color), "#{color}_rook", :available_chess_piece)
+    =draggable_element("#{color}_rook", :ghosting=>true, :revert=>true)    
+    =receive_piece "#{color}_rook", :chess_square, :remove_piece_in_position, game_id
+  %td
+    =fill_chess_square(Chess::Queen.new("d8", color), "#{color}_queen", :available_chess_piece)
+    =draggable_element("#{color}_queen", :ghosting=>true, :revert=>true)    
+    =receive_piece "#{color}_queen", :chess_square, :remove_piece_in_position, game_id
+  %td
+    =fill_chess_square(Chess::King.new("e8", color), "#{color}_king", :available_chess_piece)
+    =draggable_element("#{color}_king", :ghosting=>true, :revert=>true)    
+    =receive_piece "#{color}_king", :chess_square, :remove_piece_in_position, game_id
