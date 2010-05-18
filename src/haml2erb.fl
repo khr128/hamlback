@@ -33,6 +33,8 @@ NOT_QUOTE           [^\'\"]
 LINE_CONTINUATION   \|\n
 DOCTYPE             !!!
 
+%x SPACEINDENT
+
 %%
 ^{DOCTYPE}                                        { return DOCTYPE;}
 ^{SPACE}*{ESCAPE}.*                               { yylval.strval = strdup(yytext); return ESCAPED_CONTENT;}
@@ -43,7 +45,9 @@ DOCTYPE             !!!
 {LINE_CONTINUATION}                               { return LINE_CONTINUATION; }
 ^{SPACE}+{EQUAL}.*/{LINE_CONTINUATION}            { yylval.strval = strdup(yytext); return RUBY_CODE;}
 .*/{LINE_CONTINUATION}                            { yylval.strval = strdup(yytext); return CONTENT;}
+^{SPACE}+/{POUND}.*                               { yylval.strval = strdup(yytext); BEGIN SPACEINDENT; return SPACE_INDENT; }
 ^{SPACE}+                                         { yylval.strval = strdup(yytext); return SPACE_INDENT; }
+<SPACEINDENT>{POUND}                              { BEGIN INITIAL; return POUND; }
 {EQUAL}                                           { return EQUAL; }
 {COMMA}{SPACE}*                                   { return COMMA; }
 {PCT}                                             { return PCT; }
