@@ -21,6 +21,7 @@ extern void push_tag_name(char *name, char *indent, enum tag_type type);
 extern char *make_tag_name(char *name, char* indent);
 extern char* print_indented_tag(char *match, char* tokens, const char *code_fmt, const char *trim);
 extern void check_previous_tag();
+extern char* make_tag_element(char *el, int* just_indent, char *acc);
 
 #ifdef __cplusplus
 }

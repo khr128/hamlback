@@ -120,3 +120,26 @@ char* print_indented_tag(char *match, char* tokens, const char *code_fmt, const 
     free(code);
   }
 }
+
+char* make_tag_element(char *el, int* just_indent, char *acc)
+{
+  if(*just_indent)
+  {
+      fprintf(stderr, "<!--====just=====-->\n");
+    printf("<%s", el);
+    *just_indent = 0;
+    return 0;
+  }
+  else
+  {
+    haml_set_current_indent(0);
+    acc = append(acc, el);
+    char* acc_dup = strdup(acc);
+    char* tag_name = strtok(acc_dup, " ");
+    close_previously_parsed_tags(tag_name);
+    push_tag_name(tag_name, "", html);
+    free(acc_dup);
+
+    return acc;
+  }
+}

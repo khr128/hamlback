@@ -117,43 +117,13 @@ tag:
 tag_element: {/* nothing */}
  | tag_element name 
     {
-      if(just_indent)
-      {
-        printf("<%s", $2);
-        acc = 0;
-        just_indent = 0;
-        free($2);
-      }
-      else
-      {
-        haml_set_current_indent(0);
-        acc = append(acc, $2);
-        char* acc_dup = strdup(acc);
-        char* tag_name = strtok(acc_dup, " ");
-        close_previously_parsed_tags(tag_name);
-        push_tag_name(tag_name, "", html);
-        haml_free(2, $2, acc_dup);
-      }
+      acc = make_tag_element($2, &just_indent, acc);
+      free($2);
     }
   | tag_element div 
     {
-      if(just_indent)
-      {
-        printf("<%s", $2);
-        acc = 0;
-        just_indent = 0;
-        free($2);
-      }
-      else
-      {
-        haml_set_current_indent(0);
-        acc = append(acc, $2);
-        char* acc_dup = strdup(acc);
-        char* tag_name = strtok(acc_dup, " ");
-        close_previously_parsed_tags(tag_name);
-        push_tag_name(tag_name, "", html);
-        haml_free(2, $2, acc_dup);
-      }
+      acc = make_tag_element($2, &just_indent, acc);
+      free($2);
     }
 
   | tag_element indent
